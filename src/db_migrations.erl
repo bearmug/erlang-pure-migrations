@@ -38,9 +38,13 @@ do_migration({Version, FileName}) ->
 
 -spec find_migrations(folder()) -> [migration()].
 find_migrations(ScriptsLocation) ->
-  case file:list_dir_all(ScriptsLocation) of
-    [] -> [];
-    Files -> [string:split(F, "_") || F <- Files]
+  AppliedMigrations = lists:as_set(db_applied_migrations()),
+  case lists:filter(
+    fun(N) -> not sets:contains(AppliedMigrations, N) end,
+    file:list_dir_all(ScriptsLocation)) of
+      [] -> [];
+      Files ->
+        lists:keysort(1, [string:to_integer(string:split(F, "_")) || F <- Files])
   end.
 
 query(Str) ->
