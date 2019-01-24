@@ -16,7 +16,7 @@ migrate(Path, FTx, FQuery) ->
     end)).
 
 do_migration({Version, FileName}, Path, FQuery) ->
-  Version = next_migration_version(FQuery),
+  Version = FQuery(?DIALECT:latest_existing_version()) + 1,
   ScriptPath = Path ++ "/" ++ FileName,
   case file:read_file(ScriptPath) of
     {ok, ScriptBody} ->
