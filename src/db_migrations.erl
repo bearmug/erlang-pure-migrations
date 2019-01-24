@@ -6,8 +6,9 @@
 
 -spec migrate(
     Path   :: nonempty_string(),
-    FTx    :: fun((F :: fun()) -> any()),
-    FQuery :: fun((Query :: string()) -> any()) -> any().
+    FTx    :: fun((F) -> ok | {ok, R} | any()),
+    FQuery :: fun((nonempty_string()) -> ok | {ok, R} | any())) -> ok
+      when F :: fun(() -> ok | {ok, R} | any()).
 migrate(Path, FTx, FQuery) ->
   ok = is_ok(FQuery(?DIALECT:init())),
   ok = is_ok(FTx(

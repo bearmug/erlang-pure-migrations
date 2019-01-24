@@ -4,15 +4,18 @@
 
 
 init() ->
-  %% check compatibility with the engine
-  %% create migrationstable if not exists
-  erlang:error(not_implemented).
+  "CREATE TABLE IF NOT EXISTS database_migrations_history (
+    version INTEGER NOT NULL PRIMARY KEY,
+    filename TEXT NOT NULL,
+    creation_timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+  )".
 
 migrations_names() ->
-  erlang:error(not_implemented).
+  "SELECT version, filename FROM database_migrations_history".
 
-save_migration(_Version, _Filename) ->
-  erlang:error(not_implemented).
+save_migration(Version, Filename) ->
+  "INSERT INTO database_migrations_history(version, filename)
+   VALUES ($Version, $Filename)".
 
 latest_existing_version() ->
-  erlang:error(not_implemented).
+  "SELECT max(version) FROM database_migrations_history".
