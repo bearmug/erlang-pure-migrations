@@ -1,54 +1,42 @@
 -module(db_migrations).
 
--export([migrate/1]).
+-export([migrate/3]).
 
--type version()   :: 0..1000.
--type filename()  :: nonempty_string().
--type folder()    :: nonempty_string().
--type migration() :: {version(), filename()}.
+-define(DIALECT, dialect_postgres).
 
--spec migrate(string()) -> ok.
-migrate(ScriptsLocation) ->
-  case find_migrations(ScriptsLocation) of
-    [] -> ok;
-    Migrations -> db_tx(fun() ->
-                          ok = db_init(),
-                          [do_migration(M) || M <- Migrations]
-                        end)
+-spec migrate(
+    Path   :: nonempty_string(),
+    FTx    :: fun((F :: fun()) -> any()),
+    FQuery :: fun((Query :: string()) -> any()) -> any().
+migrate(Path, FTx, FQuery) ->
+  ok = is_ok(FQuery(?DIALECT:init())),
+  ok = is_ok(FTx(
+    fun() ->
+      [ok = is_ok(do_migration(M, Path, FQuery)) || M <- find_migrations(Path, FQuery)]
+    end)).
+
+do_migration({Version, FileName}, Path, FQuery) ->
+  Version = next_migration_version(FQuery),
+  ScriptPath = Path ++ "/" ++ FileName,
+  case file:read_file(ScriptPath) of
+    {ok, ScriptBody} ->
+      ok = is_ok(FQuery(ScriptBody)),
+      ok = is_ok(FQuery(?DIALECT:save_migration(Version, FileName)));
+    E -> {error, file_read, ScriptPath, E}
   end.
 
-db_tx(Fun) ->
-  query("open db-level locking transaction"),
-  try Fun() of
-    _ ->
-      query("commit transaction")
-  catch
-    E ->
-      query("rollback transaction"),
-      throw(E)
-  end.
-
-db_init() ->
-  query("create migrations table if not exists").
-
-do_migration({Version, FileName}) ->
-  Version = next_migration_version(),
-  query("run migration body"),
-  query("insert migration version with Version and FileName").
-
--spec find_migrations(folder()) -> [migration()].
-find_migrations(ScriptsLocation) ->
-  AppliedMigrations = lists:as_set(db_applied_migrations()),
+find_migrations(ScriptsLocation, RunQuery) ->
+  MigrationsDone = lists:as_set(RunQuery(?DIALECT:migrations_names())),
   case lists:filter(
-    fun(N) -> not sets:contains(AppliedMigrations, N) end,
+    fun(N) -> not sets:contains(MigrationsDone, N) end,
     file:list_dir_all(ScriptsLocation)) of
-      [] -> [];
       Files ->
-        lists:keysort(1, [string:to_integer(string:split(F, "_")) || F <- Files])
+        lists:keysort(1, [string:to_integer(string:split(F, "_")) || F <- Files]);
+      _ -> []
   end.
 
-query(Str) ->
-  erlang:error(not_implemented).
-
-next_migration_version() ->
-  query("find latest migration version") + 1.
+is_ok(ok) -> ok.
+is_ok({ok, _}) -> ok.
+is_ok({ok, _, _}) -> ok.
+is_ok({ok, _, _, _}) -> ok.
+is_ok(E) -> {error, E}.
