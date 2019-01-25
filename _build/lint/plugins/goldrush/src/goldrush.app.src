@@ -1,0 +1,10 @@
+{application,goldrush,
+             [{description,"Erlang event stream processor"},
+              {vsn,"0.1.9"},
+              {registered,[]},
+              {applications,[kernel,stdlib,syntax_tools,compiler]},
+              {mod,{gr_app,[]}},
+              {env,[]},
+              {maintainers,["DeadZen"]},
+              {licenses,["ISC"]},
+              {links,[{"GitHub","https://github.com/DeadZen/goldrush"}]}]}.

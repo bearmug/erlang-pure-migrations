@@ -1,0 +1,4 @@
+{config,[]}.
+{event_handler,[]}.
+{ct_hooks,[cth_readable_failonly,cth_readable_compact_shell,cth_retry]}.
+{enable_builtin_hooks,undefined}.

@@ -1,0 +1,17 @@
+=== Suite started at 2019-01-25 21:50:18
+=== Starting test, 0 test cases
+=cases         0
+=user          pavel
+=host          nohost
+=hosts         nohost 
+=emulator_vsn  10.2.2
+=emulator      beam
+=otp_release   21
+=started       2019-01-25 21:50:18
+=== TEST COMPLETE, 0 ok, 0 failed of 0 test cases
+
+=finished      2019-01-25 21:50:18
+=failed        0
+=successful    0
+=user_skipped  0
+=auto_skipped  0

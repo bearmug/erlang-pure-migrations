@@ -1,0 +1,66 @@
+=== Suite started at 2019-01-25 23:03:59
+=== Starting test, 1 test cases
+=cases         1
+=user          pavel
+=host          nohost
+=hosts         nohost 
+=emulator_vsn  10.2.2
+=emulator      beam
+=otp_release   21
+=started       2019-01-25 23:03:59
+=case          ct_framework:init_per_suite
+=logfile       ct_framework.init_per_suite.html
+=group_props   [{suite,oleg_engine_epgsql_SUITE}]
+=started       2019-01-25 23:03:59
+=ended         2019-01-25 23:04:00
+=result        ok
+=elapsed       0.0
+=case          oleg_engine_epgsql_SUITE:empty_folder_test
+=logfile       oleg_engine_epgsql_suite.empty_folder_test.html
+=started       2019-01-25 23:04:00
+=ended         2019-01-25 23:04:00
+=result        failed: {undef,
+                           [{oleg_engine_epgsql_SUITE,empty_folder_test,
+                                [[{watchdog,<0.216.0>},
+                                  {tc_logfile,
+                                      "/home/pavel/repos/github/bearmug/erlang-pg-migrations/_build/test/logs/ct_run.nonode@nohost.2019-01-25_23.03.59/lib.oleg.logs/run.2019-01-25_23.03.59/oleg_engine_epgsql_suite.empty_folder_test.html"},
+                                  {tc_group_properties,
+                                      [{suite,oleg_engine_epgsql_SUITE}]},
+                                  {tc_group_path,[]},
+                                  {data_dir,
+                                      "/home/pavel/repos/github/bearmug/erlang-pg-migrations/_build/test/lib/oleg/test/oleg_engine_epgsql_SUITE_data/"},
+                                  {priv_dir,
+                                      "/home/pavel/repos/github/bearmug/erlang-pg-migrations/_build/test/logs/ct_run.nonode@nohost.2019-01-25_23.03.59/lib.oleg.logs/run.2019-01-25_23.03.59/log_private/"}]],
+                                []},
+                            {test_server,ts_tc,3,
+                                [{file,"test_server.erl"},{line,1545}]},
+                            {test_server,run_test_case_eval1,6,
+                                [{file,"test_server.erl"},{line,1063}]},
+                            {test_server,run_test_case_eval,9,
+                                [{file,"test_server.erl"},{line,995}]}]}, [{oleg_engine_epgsql_SUITE,
+                                                                            empty_folder_test},
+                                                                           {test_server,
+                                                                            ts_tc,
+                                                                            1545},
+                                                                           {test_server,
+                                                                            run_test_case_eval1,
+                                                                            1063},
+                                                                           {test_server,
+                                                                            run_test_case_eval,
+                                                                            995}]
+=== *** FAILED test case 1 of 1 ***
+=case          ct_framework:end_per_suite
+=logfile       ct_framework.end_per_suite.html
+=group_props   [{suite,oleg_engine_epgsql_SUITE}]
+=started       2019-01-25 23:04:00
+=ended         2019-01-25 23:04:00
+=result        ok
+=elapsed       0.0
+=group_time    0.073s
+=== TEST COMPLETE, 0 ok, 1 failed of 1 test cases
+
+=finished      2019-01-25 23:04:00
+=failed        1
+=successful    0
+=user_skipped  0
+=auto_skipped  0

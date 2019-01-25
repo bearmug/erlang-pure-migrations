@@ -1,0 +1,13 @@
+{application,aleppo,
+             [{description,"Aleppo: ALternative Erlang Pre-ProcessOr"},
+              {vsn,"1.1.1"},
+              {modules,[aleppo,aleppo_parser]},
+              {pkg_name,inaka_aleppo},
+              {applications,[kernel,stdlib]},
+              {registered,[]},
+              {maintainers,["Inaka","ErlyORM"]},
+              {licenses,["MIT/X11"]},
+              {links,[{"Github","https://github.com/inaka/aleppo"}]},
+              {build_tools,["rebar3"]},
+              {files,["rebar.config","src/aleppo.app.src","src/aleppo.erl",
+                      "src/aleppo_parser.yrl"]}]}.
