@@ -1,0 +1,12 @@
+{application, oleg,
+  [{description, "SQL Database Migration Tool"},
+    {vsn, "0.1"},
+    {licenses, ["MIT"]},
+    {registered, []},
+    {modules, []},
+    {applications, [
+      kernel,
+      stdlib
+    ]},
+    {env, []}
+  ]}.

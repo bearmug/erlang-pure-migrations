@@ -1,4 +1,16 @@
-all:
-	./rebar get-deps
-	./rebar compile
-	erl -pa ebin deps/*/ebin -s hello_world -noshell
+REBAR = ./rebar3
+
+all: clean code-checks test
+
+clean:
+	$(REBAR) clean
+
+compile:
+	$(REBAR) compile
+
+test: compile
+	$(REBAR) do ct -v
+
+code-checks: compile
+	$(REBAR) dialyzer
+	$(REBAR) as lint lint
