@@ -13,12 +13,14 @@
   R :: fun(() -> ok | error()).
 migrate(Path, FTx, FQuery) ->
   ok = FQuery(dialect_postgres:init()),
-  fun() -> FTx(fold(
-    find_migrations(Path, FQuery),
-    fun({V, F}) -> do_migration({V, F}, Path, FQuery) end))
+  fun() -> FTx(flatten(
+    map(
+      find_migrations(Path, FQuery),
+      partial(fun do_migration/3, Path, FQuery)),
+    fun(M)-> ok = M() end))
   end.
 
-do_migration({Version, FileName}, Path, FQuery) ->
+do_migration(Path, FQuery, {Version, FileName}) ->
   Version = FQuery(dialect_postgres:latest_existing_version()) + 1,
   ScriptPath = Path ++ "/" ++ FileName,
   compose(
@@ -41,4 +43,8 @@ find_migrations(ScriptsLocation, FQuery) ->
 
 compose(F1, F2) -> fun() -> F2(F1()) end.
 
-fold(Generate, Fold) -> fun() -> [ok = Fold(R) || R <- Generate()] end.
+map(Generate, Fold) -> fun() -> [Fold(R) || R <- Generate()] end.
+
+flatten(Generate, Flat) -> fun() -> [ok = Flat(R) || R <- Generate()] end.
+
+partial(F, A, B) -> fun(C) -> F(A, B, C) end.
