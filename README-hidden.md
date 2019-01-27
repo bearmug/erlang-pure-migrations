@@ -69,7 +69,25 @@ compose(F1, F2) ->
 You may find library funcitonal composition example in a few locations
 [here](https://github.com/bearmug/oleg-migrations/blob/make-engine-free-of-side-effects/src/oleg_engine.erl#L36).
 
-#### Functor application
+#### Functor applications
+There area few places in library with clear need to compose function *A*
+and another function *B* inside deferred execution context. Specifics is
+that *A* supplies list of objects, and *B* should be applied to each of
+them. Sounds like some functor *B* to be applied to *A* output, when
+this output is being wrapped into future execution context. Two cases
+of this appeared in library:
+ * have functor running and produce nested list of contexts:
+```erlang
+%% Map/1 call here produces new context (defferred function call in Erlang)
+map(Generate, Map) ->
+  fun() -> [Map(R) || R <- Generate()] end.
+```
+ * flatten (or fold) contexts to a single one:
+```erlang
+%% Flatten/1 call compactifies contexts and folds 2 levels to single one
+flatten(Generate, Flatten) ->
+  fun() -> [Flatten(R) || R <- Generate()] end.
+```
 #### Partial function applications
 This technique is very useful, in case if not all function arguments
 known yet. Or maybe there is deliberate decision to pass some of arguments
@@ -87,4 +105,4 @@ partial(F, A, B) ->
 ```
 Exactly this feature helps [here](https://github.com/bearmug/oleg-migrations/blob/make-engine-free-of-side-effects/src/oleg_engine.erl#L19)
 to pass particular migration to partially applied function. Therefore,
-no need to care about already known parameters. 
+no need to care about already known parameters.
