@@ -1,5 +1,17 @@
 [![Build Status](https://travis-ci.org/bearmug/oleg-migrations.svg?branch=master)](https://travis-ci.org/bearmug/oleg-migrations)
 
+- [Oleg ❤ pure databases migrations](#oleg---pure-databases-migrations)
+  * [Quick start](#quick-start)
+    + [Usage with epgsql TBD](#usage-with-epgsql-tbd)
+    + [Alternative wrappers TBD](#alternative-wrappers-tbd)
+  * [Purely functional approach](#purely-functional-approach)
+    + [Purity tool #1: effects externalization](#purity-tool--1--effects-externalization)
+    + [Purity tool #2: make effects explicit](#purity-tool--2--make-effects-explicit)
+    + [Used functional programming abstractions](#used-functional-programming-abstractions)
+      - [Functions composition](#functions-composition)
+      - [Functor applications](#functor-applications)
+      - [Partial function applications](#partial-function-applications)
+
 # Oleg ❤ pure databases migrations
 This amazing toolkit [main and only](https://en.wikipedia.org/wiki/Unix_philosophy)
 purpose. This one is to migrate SQL databases with Erlang. And as a fun
