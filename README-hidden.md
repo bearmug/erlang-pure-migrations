@@ -1,7 +1,10 @@
 [![Build Status](https://travis-ci.org/bearmug/oleg-migrations.svg?branch=master)](https://travis-ci.org/bearmug/oleg-migrations)
 
-- [Oleg ❤ pure databases migrations](#oleg---pure-databases-migrations)
+- [Erlang ❤ pure Postgres migrations](#erlang---pure-postgres-migrations)
   * [Quick start](#quick-start)
+  * [Versioning model](#versioning-model)
+    + [Versioning strictness](#versioning-strictness)
+    + [No-downgrades policy](#no-downgrades-policy)
     + [Usage with epgsql TBD](#usage-with-epgsql-tbd)
     + [Alternative wrappers TBD](#alternative-wrappers-tbd)
   * [Purely functional approach](#purely-functional-approach)
@@ -12,31 +15,62 @@
       - [Functor applications](#functor-applications)
       - [Partial function applications](#partial-function-applications)
 
-# Oleg ❤ pure databases migrations
-This amazing toolkit [main and only](https://en.wikipedia.org/wiki/Unix_philosophy)
-purpose. This one is to migrate SQL databases with Erlang. And as a fun
-part of the project - it is approached in "no side-effects" mode aka
-purely funcitonal.
+# Erlang ❤ pure Postgres migrations
+This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
+purpose. It is to migrate Postgres database, using Erlang stack. And as an
+extra - do this in "no side-effects" mode aka purely functional.
 
 Please note - library provides migrations engine capabilities only. You
 will need to pass two handlers (or functions) there:
- * transaction handler, which manages tx scope
+ * transaction handler, which apen/commit/rollback transactions scope
  * queries handler, to run queries against database
-For more details see short [specification](https://github.com/bearmug/oleg-migrations/blob/master/src/oleg_engine.erl#L7).
+For more details see short in-code [specification](https://github.com/bearmug/oleg-migrations/blob/master/src/oleg_engine.erl#L7).
 
 ## Quick start
+Just call `engine:migrate/3`, providing:
+ * `Path` to migration scripts. Those should be versioned strictly
+ incrementally from starting from 0 over their names with speparating `_`
+ symbol. For example: `0_create_database.sql` or `005_UPDATE-IMPORTANT-FILED`.
+ *  `FTx` handler to manage transaction scope. See signature details [here](https://github.com/bearmug/oleg-migrations/blob/make-engine-free-of-side-effects/src/oleg_engine.erl#L9)
+    and also usage examples into integration tests pack.
+ *  `FQuery` to communicate with database, please see signature details,
+    since library needs to be answered with number or list of strings
+
+## Versioning model
+### Versioning strictness
+As mentioned, versioning model is very opinionated and declares itself
+as strictly incremental from 0 and upwards. With given approach, there is
+no way for conflicting database updates, applied from different pull-requests
+or branches (depends on deployment model).
+### No-downgrades policy
+As you may see, there is **no downgrade feature available**. Please
+consider this while evaluating library for your project. This hasn't been
+tooling in order to:
+ * keep tooling as simple as possible, obviously :)
+ * delegate upcoming upgrades validation to CI with
+   unit/integration/acceptance tests chain. Decent test pack and reasonable
+   CI/CD process (metric-based rollouts, monitored environments, controlled
+   test coverage regression) making database rollback feature virtually
+   unused. And without healthy and automated CI/CD cycle there are much
+   more opportunities to break the system. Database rollback opportunity
+   could be little to no help.
+
 ### Usage with epgsql TBD
 ### Alternative wrappers TBD
 
 ## Purely functional approach
-Oh, there is more! Library implemented in the [way](https://en.wikipedia.org/wiki/Pure_function),
-that all side-effects either externalized or deferred explicitly. Usually,
-it is not how side-effects managed in Erlang. So, this part is experimental.
-Goals are quite common and well-known:
- * bring side-effects as close to program edges as possible. (And get
- referential transparency, better bugs reproduceability, ...)
- * make unit testing simple as breeze
- * give library users opportunity to re-run idempotent code safely
+Oh, **there is more!** Library implemented in the [way](https://en.wikipedia.org/wiki/Pure_function),
+that all side-effects either externalized or deferred explicitly. Goals
+are quite common and well-known:
+ * bring side-effects as close to program edges as possible. And
+ eventually have referential transparency, enhanced code reasoning, better
+ bugs reproduceability, etc...
+ * make unit testing as simple as breeze
+ * library users empowered to re-run idempotent code safely. Well, if
+ tx/query handlers are real ones - execution is still idempotent (at
+ application level) and formally pure. But purity maintained inside
+ library code only. Some query calls are to be done anyway (like migrations
+ table creation, if this one does not exist).
 
 ### Purity tool #1: effects externalization
 There are 2 externalized kind of effects:
@@ -82,10 +116,10 @@ You may find library funcitonal composition example in a few locations
 [here](https://github.com/bearmug/oleg-migrations/blob/make-engine-free-of-side-effects/src/oleg_engine.erl#L36).
 
 #### Functor applications
-There area few places in library with clear need to compose function *A*
-and another function *B* inside deferred execution context. Specifics is
-that *A* supplies list of objects, and *B* should be applied to each of
-them. Sounds like some functor *B* to be applied to *A* output, when
+There area few places in library with clear need to compose function **A**
+and another function **B** inside deferred execution context. Specifics is
+that **A** supplies list of objects, and **B** should be applied to each of
+them. Sounds like some functor **B** to be applied to **A** output, when
 this output is being wrapped into future execution context. Two cases
 of this appeared in library:
  * have functor running and produce nested list of contexts:

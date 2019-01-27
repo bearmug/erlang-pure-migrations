@@ -1,4 +1,4 @@
--module(oleg_engine).
+-module(engine).
 
 -export([migrate/3]).
 
