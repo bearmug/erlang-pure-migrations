@@ -41,10 +41,14 @@ find_migrations(ScriptsLocation, FQuery) ->
     end
   ).
 
-compose(F1, F2) -> fun() -> F2(F1()) end.
+compose(F1, F2) ->
+  fun() -> F2(F1()) end.
 
-map(Generate, Fold) -> fun() -> [Fold(R) || R <- Generate()] end.
+map(Generate, Map) ->
+  fun() -> [Map(R) || R <- Generate()] end.
 
-flatten(Generate, Flat) -> fun() -> [ok = Flat(R) || R <- Generate()] end.
+flatten(Generate, Flatten) ->
+  fun() -> [Flatten(R) || R <- Generate()] end.
 
-partial(F, A, B) -> fun(C) -> F(A, B, C) end.
+partial(F, A, B) ->
+  fun(C) -> F(A, B, C) end.
