@@ -16,7 +16,7 @@ migrate(Path, FTx, FQuery) ->
   fun() -> FTx(flatten(
     map(
       find_migrations(Path, FQuery),
-      partial(fun do_migration/3, Path, FQuery)),
+      fun({V, F}) -> do_migration(Path, FQuery, {V, F}) end),
     fun(M)-> ok = M() end))
   end.
 
@@ -49,6 +49,3 @@ map(Generate, Map) ->
 
 flatten(Generate, Flatten) ->
   fun() -> [Flatten(R) || R <- Generate()] end.
-
-partial(F, A, B) ->
-  fun(C) -> F(A, B, C) end.
