@@ -1,0 +1,16 @@
+Error: badarg
+[{erlang,element,[1,help],[]},
+ {lists,ukeysort,2,[{file,"lists.erl"},{line,852}]},
+ {rebar_prv_common_test,merge_opts,2,
+                        [{file,"/opt/rebar3-3.8.0/src/rebar_prv_common_test.erl"},
+                         {line,286}]},
+ {rebar_prv_common_test,select_tests,4,
+                        [{file,"/opt/rebar3-3.8.0/src/rebar_prv_common_test.erl"},
+                         {line,266}]},
+ {rebar_prv_common_test,do,1,
+                        [{file,"/opt/rebar3-3.8.0/src/rebar_prv_common_test.erl"},
+                         {line,44}]},
+ {rebar_core,do,2,[{file,"/opt/rebar3-3.8.0/src/rebar_core.erl"},{line,154}]},
+ {rebar3,run_aux,2,[{file,"/opt/rebar3-3.8.0/src/rebar3.erl"},{line,178}]},
+ {rebar3,main,1,[{file,"/opt/rebar3-3.8.0/src/rebar3.erl"},{line,66}]}]
+

@@ -29,7 +29,21 @@ all() -> [
   negative_version_test
 ].
 
-empty_folder_test(_Config) -> ?assert(true).
+empty_folder_test(Config) ->
+  [ConfigRoot|_] = re:replace(?config(data_dir, Config),  "[a-zA-Z0-9_]+/$", ""),
+  PreparedCall = engine:migrate(
+    binary_to_list(ConfigRoot) ++ "data/01-empty-folder",
+    fun(F) -> F() end,
+    fun(Q) -> case Q of
+                "CREATE" ++ _Tail -> ok;
+                "SELECT version" ++ _Tail -> [];
+                "SELECT max" ++ _Tail -> 0;
+                "INSERT"++_Tail -> throw("Insert calls not expected");
+                true -> throw("Unknown calls not expected")
+              end
+    end),
+  PreparedCall().
+
 wrong_filename_test(_Config) -> ?assert(true).
 wrong_path_test(_Config) -> ?assert(true).
 regular_upgrade_test(_Config) -> ?assert(true).
