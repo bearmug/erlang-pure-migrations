@@ -31,7 +31,6 @@ wrong_filename_test(Opts) ->
     fun(F) -> F() end,
     fun(Q) -> case Q of
                 "CREATE" ++ _Tail -> ok;
-                "CREATE" ++ _Tail -> ok;
                 "SELECT version" ++ _Tail -> [];
                 "SELECT max" ++ _Tail -> -1;
                 "INSERT"++_Tail -> throw("Insert calls not expected");
