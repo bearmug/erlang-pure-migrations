@@ -1,5 +1,5 @@
-{application, oleg,
-  [{description, "SQL Database Migration Tool"},
+{application, pure_migrations,
+  [{description, "Database Pure Migration Tool"},
     {vsn, "0.1"},
     {licenses, ["MIT"]},
     {registered, []},
