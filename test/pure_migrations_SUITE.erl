@@ -3,17 +3,7 @@
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
--export([all/0]).
-
--export([
-  wrong_filename_test/1,
-  regular_upgrade_test/1,
-  rewrite_version_test/1,
-  faulty_script_test/1,
-  start_not_from_zero_test/1,
-  versions_gap_test/1,
-  negative_version_test/1
-]).
+-compile(export_all).
 
 all() -> [
   wrong_filename_test,
