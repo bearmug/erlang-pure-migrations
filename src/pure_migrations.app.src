@@ -1,5 +1,5 @@
 {application, pure_migrations,
-  [{description, "SQL Database Pure Migration Tool"},
+  [{description, "Database Pure Migration Tool"},
     {vsn, "0.1"},
     {licenses, ["MIT"]},
     {registered, []},

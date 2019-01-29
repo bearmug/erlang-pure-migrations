@@ -3,7 +3,7 @@
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
--export([all/0]).
+-export([init_per_testcase/2, all/0]).
 
 -export([
   empty_folder_test/1,
@@ -29,8 +29,11 @@ all() -> [
   negative_version_test
 ].
 
+
+
 empty_folder_test(Config) ->
-  [ConfigRoot|_] = re:replace(?config(data_dir, Config),  "[a-zA-Z0-9_]+/$", ""),
+  ConfigRoot = ?config(config_root, Config),
+  io:format("empty_folder_test config: ~p~n", [Config]),
   PreparedCall = engine:migrate(
     binary_to_list(ConfigRoot) ++ "data/01-empty-folder",
     fun(F) -> F() end,
@@ -52,3 +55,8 @@ faulty_script_test(_Config) -> ?assert(true).
 start_not_from_zero_test(_Config) -> ?assert(true).
 versions_gap_test(_Config) -> ?assert(true).
 negative_version_test(_Config) -> ?assert(true).
+
+
+init_per_testcase(_Case, Config) ->
+  [ConfigRoot|_] = re:replace(?config(data_dir, Config),  "[a-zA-Z0-9_]+/$", ""),
+  [{config_root, ConfigRoot} | Config].
