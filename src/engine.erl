@@ -7,7 +7,7 @@
 -spec migrate(
     Path :: nonempty_string(),
     FTx :: fun((F) -> ok | error()),
-    FQuery :: fun((nonempty_string()) -> ok | list(string()) | error())) -> R
+    FQuery :: fun((nonempty_string()) -> ok | list(string()) | integer() | error())) -> R
   when
   F :: fun(() -> ok | error()),
   R :: fun(() -> ok | error()).
@@ -22,7 +22,7 @@ migrate(Path, FTx, FQuery) ->
 
 do_migration(Path, FQuery, {Version, FileName}) ->
   Version = FQuery(dialect_postgres:latest_existing_version()) + 1,
-  ScriptPath = Path ++ "/" ++ FileName,
+  ScriptPath = filename:join(Path, FileName),
   compose(
     fun() -> file:read_file(ScriptPath) end,
     fun({ok, ScriptBody}) ->
@@ -37,9 +37,12 @@ find_migrations(ScriptsLocation, FQuery) ->
     fun() -> file:list_dir_all(ScriptsLocation) end,
     fun({ok, Files}) -> lists:filter(
         fun(N) -> not sets:is_element(N, MigrationsDone) end,
-        lists:keysort(1, [string:to_integer(string:split(F, "_")) || F <- Files]))
+        lists:keysort(1, [
+          {list_to_integer(head(string:split(F, "_"))), F} || F <- Files]))
     end
   ).
+
+head([H|_]) -> H.
 
 compose(F1, F2) ->
   fun() -> F2(F1()) end.
