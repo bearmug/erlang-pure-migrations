@@ -54,8 +54,39 @@ regular_upgrade_test(Opts) ->
     end),
   ?assertEqual([ok], PreparedCall()).
 
-rewrite_version_test(_Config) -> ?assert(true).
-faulty_script_test(_Config) -> ?assert(true).
+rewrite_version_test(Opts) ->
+  PreparedCall = engine:migrate(
+    filename:join([?config(data_dir, Opts), "03-rewrite-version"]),
+    fun(F) -> F() end,
+    fun(Q) -> case Q of
+                "CREATE" ++ _Tail -> ok;
+                "SELECT version" ++ _Tail -> [{0, "00_very_first_script.sql"}];
+                "SELECT max" ++ _Tail -> 0;
+                "INSERT"++_Tail -> ok;
+                true -> throw("Unknown calls not expected")
+              end
+    end),
+  ?assertError({badmatch, 1}, PreparedCall()).
+
+faulty_script_test(Opts) ->
+  PreparedCall = engine:migrate(
+    filename:join([?config(data_dir, Opts), "00-default"]),
+    fun(F) -> F() end,
+    fun(Q) -> case Q of
+                "CREATE" ++ _Tail -> ok;
+                <<"CREATE TABLE fruit (\n name TEXT\n);">> ->
+                  {error, system_fault, "Please check database connectivity"};
+                "SELECT version" ++ _Tail -> [];
+                "SELECT max" ++ _Tail -> -1;
+                "INSERT"++_Tail -> ok;
+                true -> throw("Unknown calls not expected")
+              end
+    end),
+  ?assertError(
+    {badmatch, {
+      error,system_fault, "Please check database connectivity"
+    }}, PreparedCall()).
+
 start_not_from_zero_test(_Config) -> ?assert(true).
 versions_gap_test(_Config) -> ?assert(true).
 negative_version_test(_Config) -> ?assert(true).
