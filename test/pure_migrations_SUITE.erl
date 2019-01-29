@@ -82,11 +82,48 @@ faulty_script_test(Opts) ->
                 true -> throw("Unknown calls not expected")
               end
     end),
-  ?assertError(
-    {badmatch, {
+  ?assertError({badmatch, {
       error,system_fault, "Please check database connectivity"
-    }}, PreparedCall()).
+  }}, PreparedCall()).
 
-start_not_from_zero_test(_Config) -> ?assert(true).
-versions_gap_test(_Config) -> ?assert(true).
-negative_version_test(_Config) -> ?assert(true).
+start_not_from_zero_test(Opts) ->
+  PreparedCall = engine:migrate(
+    filename:join([?config(data_dir, Opts), "04-invalid-start-version"]),
+    fun(F) -> F() end,
+    fun(Q) -> case Q of
+                "CREATE" ++ _Tail -> ok;
+                "SELECT version" ++ _Tail -> [];
+                "SELECT max" ++ _Tail -> -1;
+                "INSERT"++_Tail -> ok;
+                true -> throw("Unknown calls not expected")
+              end
+    end),
+  ?assertError({badmatch, 0}, PreparedCall()).
+
+versions_gap_test(Opts) ->
+  PreparedCall = engine:migrate(
+    filename:join([?config(data_dir, Opts), "04-invalid-start-version"]),
+    fun(F) -> F() end,
+    fun(Q) -> case Q of
+                "CREATE" ++ _Tail -> ok;
+                "SELECT version" ++ _Tail -> [{0, "00_very_first_script.sql"}];
+                "SELECT max" ++ _Tail -> 0;
+                "INSERT"++_Tail -> ok;
+                true -> throw("Unknown calls not expected")
+              end
+    end),
+  ?assertError({badmatch, 1}, PreparedCall()).
+
+negative_version_test(Opts) ->
+  PreparedCall = engine:migrate(
+    filename:join([?config(data_dir, Opts), "05-negative-version"]),
+    fun(F) -> F() end,
+    fun(Q) -> case Q of
+                "CREATE" ++ _Tail -> ok;
+                "SELECT version" ++ _Tail -> [];
+                "SELECT max" ++ _Tail -> -1;
+                "INSERT"++_Tail -> ok;
+                true -> throw("Unknown calls not expected")
+              end
+    end),
+  ?assertError({badmatch, 0}, PreparedCall()).
