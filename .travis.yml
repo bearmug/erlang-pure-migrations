@@ -1,8 +1,11 @@
+cache:
+  directories:
+    - ./_build/plt
+
 language: erlang
 
 otp_release:
   - 21.0
 
 script:
-  - make code-checks
-  - make test
+  - make travis
