@@ -6,3 +6,4 @@ otp_release:
 script:
   - make code-checks
   - make test
+  - make coveralls

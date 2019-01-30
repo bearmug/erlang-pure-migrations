@@ -8,9 +8,12 @@ clean:
 compile:
 	$(REBAR) compile
 
+cover:
+	$(REBAR) cover --min_coverage=100 -v
+	$(REBAR) coveralls send
+
 test: compile
-	$(REBAR) do ct -v
-	$(REBAR) cover --min_coverage=100
+	$(REBAR) as test do ct -v
 
 code-checks: compile
 	$(REBAR) dialyzer
