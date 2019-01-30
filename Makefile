@@ -4,6 +4,8 @@ all: clean code-checks test cover
 
 travis: all coveralls
 
+local: all format
+
 clean:
 	$(REBAR) clean
 
@@ -22,3 +24,6 @@ cover:
 
 coveralls:
 	$(REBAR) as test coveralls send
+
+format:
+	$(REBAR) fmt

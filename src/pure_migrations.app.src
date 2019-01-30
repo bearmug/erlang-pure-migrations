@@ -1,12 +1,12 @@
 {application, pure_migrations,
-  [{description, "Database Pure Migration Tool"},
-    {vsn, "0.1"},
-    {licenses, ["MIT"]},
-    {registered, []},
-    {modules, []},
-    {applications, [
-      kernel,
-      stdlib
-    ]},
-    {env, []}
-  ]}.
+ [{description, "Database Pure Migration Tool"},
+  {vsn, "0.1"},
+  {licenses, ["MIT"]},
+  {registered, []},
+  {modules, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
