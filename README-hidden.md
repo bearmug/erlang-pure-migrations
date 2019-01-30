@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/bearmug/oleg-migrations.svg?branch=master)](https://travis-ci.org/bearmug/oleg-migrations)
+[![Build Status](https://travis-ci.org/bearmug/oleg-migrations.svg?branch=master)](https://travis-ci.org/bearmug/oleg-migrations) [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 
 - [Erlang ❤ pure Postgres migrations](#erlang---pure-postgres-migrations)
   * [Quick start](#quick-start)
