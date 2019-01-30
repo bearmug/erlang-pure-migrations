@@ -11,3 +11,4 @@ script:
   - make code-checks
   - make test
   - make cover
+  - make coveralls

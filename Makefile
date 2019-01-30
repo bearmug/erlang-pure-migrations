@@ -1,6 +1,6 @@
 REBAR = ./rebar3
 
-all: clean code-checks test
+all: clean code-checks test cover
 
 clean:
 	$(REBAR) clean
@@ -8,13 +8,15 @@ clean:
 compile:
 	$(REBAR) compile
 
-cover:
-	$(REBAR) as test cover --min_coverage=100 -v
-	$(REBAR) as test coveralls send
+code-checks: compile
+	$(REBAR) dialyzer
+	$(REBAR) as lint lint
 
 test: compile
 	$(REBAR) as test do ct -v
 
-code-checks: compile
-	$(REBAR) dialyzer
-	$(REBAR) as lint lint
+cover:
+	$(REBAR) as test cover --min_coverage=100 -v
+
+coveralls:
+	$(REBAR) as test coveralls send
