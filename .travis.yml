@@ -1,3 +1,7 @@
+cache:
+  directories:
+    - ./_build/plt
+
 language: erlang
 
 otp_release:
@@ -6,4 +10,4 @@ otp_release:
 script:
   - make code-checks
   - make test
-  - make coveralls
+  - make cover
