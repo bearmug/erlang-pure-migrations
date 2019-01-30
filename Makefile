@@ -10,6 +10,7 @@ compile:
 
 test: compile
 	$(REBAR) do ct -v
+	$(REBAR) cover --min_coverage=100
 
 code-checks: compile
 	$(REBAR) dialyzer
