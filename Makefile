@@ -2,6 +2,8 @@ REBAR = ./rebar3
 
 all: clean code-checks test cover
 
+travis: all coveralls
+
 clean:
 	$(REBAR) clean
 
@@ -20,5 +22,3 @@ cover:
 
 coveralls:
 	$(REBAR) as test coveralls send
-
-travis: all coveralls
