@@ -9,8 +9,8 @@ compile:
 	$(REBAR) compile
 
 cover:
-	$(REBAR) cover --min_coverage=100 -v
-	$(REBAR) coveralls send
+	$(REBAR) as test cover --min_coverage=100 -v
+	$(REBAR) as test coveralls send
 
 test: compile
 	$(REBAR) as test do ct -v
