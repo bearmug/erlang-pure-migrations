@@ -20,3 +20,5 @@ cover:
 
 coveralls:
 	$(REBAR) as test coveralls send
+
+travis: all coveralls
