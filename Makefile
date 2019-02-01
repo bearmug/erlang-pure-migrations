@@ -4,7 +4,7 @@ all: clean code-checks test cover
 
 travis: all coveralls
 
-local: all format
+local: format all
 
 clean:
 	$(REBAR) clean

@@ -13,42 +13,49 @@
       R :: fun(() -> ok | error()).
 migrate(Path, FTx, FQuery) ->
     ok = FQuery(dialect_postgres:init()),
-    fun() -> FTx(flatten(
-                   map(
-                     find_migrations(Path, FQuery),
-                     fun({V, F}) -> do_migration(Path, FQuery, {V, F}) end),
-                   fun(M)-> ok = M() end))
+    fun() ->
+            FTx(flatten(map(
+                          find_migrations(Path, FQuery),
+                          fun(V_F) -> do_migration(Path, FQuery, V_F) end)))
     end.
 
-do_migration(Path, FQuery, {Version, FileName}) ->
-    Version = FQuery(dialect_postgres:latest_existing_version()) + 1,
-    ScriptPath = filename:join(Path, FileName),
-    compose(
-      fun() -> file:read_file(ScriptPath) end,
-      fun({ok, ScriptBody}) ->
-              ok = FQuery(ScriptBody),
-              ok = FQuery(dialect_postgres:save_migration(Version, FileName))
-      end
-     ).
+do_migration(Path, FQuery, {V, F}) ->
+    ExpectedVersion = FQuery(dialect_postgres:latest_existing_version()) + 1,
+    case V of
+        ExpectedVersion ->
+            ScriptPath = filename:join(Path, F),
+            compose(
+              fun() -> file:read_file(ScriptPath) end,
+              fun({ok, ScriptBody}) ->
+                      ok = FQuery(ScriptBody),
+                      ok = FQuery(dialect_postgres:save_migration(V, F))
+              end);
+        _ -> {
+              error,
+              unexpected_version,
+              {expected, ExpectedVersion, supplied, V}}
+    end;
+do_migration(_Path, _FQuery, Error) -> Error.
 
 find_migrations(ScriptsLocation, FQuery) ->
-    MigrationsDone = sets:from_list(FQuery(dialect_postgres:migrations_names())),
     compose(
       fun() -> file:list_dir_all(ScriptsLocation) end,
-      fun({ok, Files}) -> lists:filter(
-                            fun(N) -> not sets:is_element(N, MigrationsDone) end,
-                            lists:keysort(1, [
-                                              {list_to_integer(head(string:split(F, "_"))), F} || F <- Files]))
-      end
-     ).
+      fun(Files) -> filter_script_files(Files, ScriptsLocation, FQuery) end).
 
-head([H|_]) -> H.
+filter_script_files({ok, Files}, _Folder, FQuery) ->
+    MigrationsDone = sets:from_list(FQuery(dialect_postgres:migrations_names())),
+    lists:filter(
+      fun(N) -> not sets:is_element(N, MigrationsDone) end,
+      lists:keysort(1, [version_and_filename(F) || F <- Files]));
+filter_script_files(Error, Folder, _FQuery)->
+    [{error, invalid_folder, {folder_supplied, Folder, error, Error}}].
 
-compose(F1, F2) ->
-    fun() -> F2(F1()) end.
+version_and_filename(F) ->
+    case string:to_integer(F) of
+        {Value, "_" ++ _} -> {Value, F};
+        _ -> {error, invalid_filename, {expected, "<number>_<description>.sql", supplied, F}}
+    end.
 
-map(Generate, Map) ->
-    fun() -> [Map(R) || R <- Generate()] end.
-
-flatten(Generate, Flatten) ->
-    fun() -> [Flatten(R) || R <- Generate()] end.
+compose(F1, F2) -> fun() -> F2(F1()) end.
+map(Generate, Map) -> fun() -> [Map(R) || R <- Generate()] end.
+flatten(Generate) -> fun() -> [ok = R() || R <- Generate()] end.
