@@ -6,7 +6,7 @@
 -compile(export_all).
 
 all() -> [
-          wrong_filename_test,
+          no_number_filename_test,
           regular_upgrade_test,
           rewrite_version_test,
           faulty_script_test,
@@ -15,13 +15,17 @@ all() -> [
           negative_version_test
          ].
 
-wrong_filename_test(Opts) ->
+no_number_filename_test(Opts) ->
     PreparedCall = engine:migrate(
                      filename:join([?config(data_dir, Opts), "01-invalid-script-name"]),
                      fun(F) -> F() end,
                      query_fun([], ok)
                     ),
-    ?assertError(badarg, PreparedCall()).
+    ?assertError(
+       {badfun, {error, invalid_filename, {
+                                           expected, "<number>_<description>.sql",
+                                           supplied, "wrong_migration_script_name.sql"}}},
+       PreparedCall()).
 
 regular_upgrade_test(Opts) ->
     PreparedCall = engine:migrate(
