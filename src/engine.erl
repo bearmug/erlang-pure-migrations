@@ -33,7 +33,7 @@ do_migration(Path, FQuery, {V, F}) ->
         _ -> {
               error,
               unexpected_version,
-              [expected, ExpectedVersion, supplied, V]}
+              {expected, ExpectedVersion, supplied, V}}
     end;
 do_migration(_Path, _FQuery, Error) -> Error.
 
