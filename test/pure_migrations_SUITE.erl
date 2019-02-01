@@ -17,7 +17,7 @@ all() -> [
 
 no_number_filename_test(Opts) ->
     PreparedCall = engine:migrate(
-                     filename:join([?config(data_dir, Opts), "01-invalid-script-name"]),
+                     filename:join([?config(data_dir, Opts), "01-no-number-script-name"]),
                      fun(F) -> F() end,
                      query_fun([], ok)
                     ),
