@@ -7,6 +7,7 @@
 
 all() -> [
           no_number_filename_test,
+          invalid_format_filename_test,
           regular_upgrade_test,
           rewrite_version_test,
           faulty_script_test,
@@ -25,6 +26,18 @@ no_number_filename_test(Opts) ->
        {badfun, {error, invalid_filename, {
                                            expected, "<number>_<description>.sql",
                                            supplied, "wrong_migration_script_name.sql"}}},
+       PreparedCall()).
+
+invalid_format_filename_test(Opts) ->
+    PreparedCall = engine:migrate(
+                     filename:join([?config(data_dir, Opts), "01-invalid-format-script-name"]),
+                     fun(F) -> F() end,
+                     query_fun([], ok)
+                    ),
+    ?assertError(
+       {badfun, {error, invalid_filename, {
+                                           expected, "<number>_<description>.sql",
+                                           supplied, "1V_wrong_migration_script_name.sql"}}},
        PreparedCall()).
 
 regular_upgrade_test(Opts) ->
