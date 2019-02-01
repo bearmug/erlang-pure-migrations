@@ -14,14 +14,15 @@
 migrate(Path, FTx, FQuery) ->
     ok = FQuery(dialect_postgres:init()),
     fun() ->
-      FTx(flatten(map(
-                     find_migrations(Path, FQuery),
-                     fun(V_F) -> do_migration(Path, FQuery, V_F) end)))
+            FTx(flatten(map(
+                          find_migrations(Path, FQuery),
+                          fun(V_F) -> do_migration(Path, FQuery, V_F) end)))
     end.
 
 do_migration(Path, FQuery, {V, F}) ->
-    case FQuery(dialect_postgres:latest_existing_version()) + 1 of
-        V ->
+    ExpectedVersion = FQuery(dialect_postgres:latest_existing_version()) + 1,
+    case V of
+        ExpectedVersion ->
             ScriptPath = filename:join(Path, F),
             compose(
               fun() -> file:read_file(ScriptPath) end,
@@ -30,10 +31,10 @@ do_migration(Path, FQuery, {V, F}) ->
                       ok = FQuery(dialect_postgres:save_migration(V, F))
               end
              );
-        Valid -> {
-                  error,
-                  unexpected_version,
-                  [expected, Valid, supplied, V]}
+        _ -> {
+              error,
+              unexpected_version,
+              [expected, ExpectedVersion, supplied, V]}
     end;
 do_migration(_Path, _FQuery, Unexpected) -> Unexpected.
 
