@@ -37,7 +37,9 @@ rewrite_version_test(Opts) ->
                      fun(F) -> F() end,
                      query_fun([{0, "00_very_first_script.sql"}], ok)
                     ),
-    ?assertError({badmatch, 1}, PreparedCall()).
+    ?assertError(
+       {badfun, {error,unexpected_version, [expected, 1, supplied, 0]}},
+       PreparedCall()).
 
 faulty_script_test(Opts) ->
     PreparedCall = engine:migrate(
@@ -55,7 +57,9 @@ start_not_from_zero_test(Opts) ->
                      fun(F) -> F() end,
                      query_fun([], ok)
                     ),
-    ?assertError({badmatch, 0}, PreparedCall()).
+    ?assertError(
+       {badfun, {error,unexpected_version, [expected, 0, supplied, 2]}},
+       PreparedCall()).
 
 versions_gap_test(Opts) ->
     PreparedCall = engine:migrate(
@@ -63,7 +67,9 @@ versions_gap_test(Opts) ->
                      fun(F) -> F() end,
                      query_fun([{0, "00_very_first_script.sql"}], ok)
                     ),
-    ?assertError({badmatch, 1}, PreparedCall()).
+    ?assertError(
+       {badfun, {error,unexpected_version, [expected, 1, supplied, 2]}},
+       PreparedCall()).
 
 negative_version_test(Opts) ->
     PreparedCall = engine:migrate(
@@ -71,7 +77,9 @@ negative_version_test(Opts) ->
                      fun(F) -> F() end,
                      query_fun([], ok)
                     ),
-    ?assertError({badmatch, 0}, PreparedCall()).
+    ?assertError(
+       {badfun, {error,unexpected_version, [expected, 0, supplied, -1]}},
+       PreparedCall()).
 
 query_fun(ExistingVersions, MigrationResponse) ->
     fun(Q) ->
