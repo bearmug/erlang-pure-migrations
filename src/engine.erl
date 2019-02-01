@@ -13,8 +13,8 @@
       R :: fun(() -> ok | error()).
 migrate(Path, FTx, FQuery) ->
     ok = FQuery(dialect_postgres:init()),
-    fun() -> FTx(flatten(
-                   map(
+    fun() ->
+      FTx(flatten(map(
                      find_migrations(Path, FQuery),
                      fun(V_F) -> do_migration(Path, FQuery, V_F) end)))
     end.
