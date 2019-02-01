@@ -6,6 +6,7 @@
 -compile(export_all).
 
 all() -> [
+          invalid_location_test,
           no_number_filename_test,
           invalid_format_filename_test,
           regular_upgrade_test,
@@ -15,6 +16,18 @@ all() -> [
           versions_gap_test,
           negative_version_test
          ].
+
+invalid_location_test(_Opts) ->
+    PreparedCall = engine:migrate(
+                     "\\invalid\location",
+                     fun(F) -> F() end,
+                     query_fun([], ok)
+                    ),
+    ?assertError(
+       {badfun, {error,invalid_folder, {
+                                        folder_supplied, "\\invalidlocation",
+                                        error, {error, enoent}}}},
+       PreparedCall()).
 
 no_number_filename_test(Opts) ->
     PreparedCall = engine:migrate(
