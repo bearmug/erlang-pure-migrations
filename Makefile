@@ -1,4 +1,6 @@
 REBAR = ./rebar3
+DOCKER = docker
+CONTAINER_NAME = postgres-migration-test-container
 
 all: clean code-checks test cover
 
@@ -16,7 +18,7 @@ code-checks: compile
 	$(REBAR) dialyzer
 	$(REBAR) as lint lint
 
-test: compile
+test: compile postgres-up
 	$(REBAR) as test do ct -v
 
 cover:
@@ -27,3 +29,9 @@ coveralls:
 
 format:
 	$(REBAR) fmt
+
+postgres-up:
+	$(DOCKER) run --name $(CONTAINER_NAME) -e POSTGRES_PASSWORD=postgres -d postgres:9.6-alpine
+
+postgres-down:
+	$(DOCKER) stop $(CONTAINER_NAME)
