@@ -2,13 +2,15 @@
 
 -export([migrate/3]).
 
+-type version() :: non_neg_integer().
+-type migration() :: {version(), Filename :: nonempty_string()}.
 -type error() :: {error, Type :: atom(), Details :: any()}.
 
 -spec migrate(
         Path :: nonempty_string(),
         FTx :: fun((F) -> ok | error()),
-        FQuery :: fun((nonempty_string()) -> ok | list(string()) | integer() | error())) -> R
-                                                                                                when
+        FQuery :: fun((nonempty_string()) -> ok | [migration()] | version() | error())) -> R
+                                                                                               when
       F :: fun(() -> ok | error()),
       R :: fun(() -> ok | error()).
 migrate(Path, FTx, FQuery) ->
@@ -43,7 +45,7 @@ find_migrations(ScriptsLocation, FQuery) ->
       fun(Files) -> filter_script_files(Files, ScriptsLocation, FQuery) end).
 
 filter_script_files({ok, Files}, _Folder, FQuery) ->
-    MigrationsDone = sets:from_list(FQuery(dialect_postgres:migrations_names())),
+    MigrationsDone = sets:from_list(FQuery(dialect_postgres:migrations_done())),
     lists:filter(
       fun(N) -> not sets:is_element(N, MigrationsDone) end,
       lists:keysort(1, [version_and_filename(F) || F <- Files]));

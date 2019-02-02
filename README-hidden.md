@@ -1,21 +1,8 @@
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations) [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 
-- [Erlang ❤ pure Postgres migrations](#erlang---pure-postgres-migrations)
-  * [Quick start](#quick-start)
-  * [Versioning model](#versioning-model)
-    + [Versioning strictness](#versioning-strictness)
-    + [No-downgrades policy](#no-downgrades-policy)
-    + [Usage with epgsql TBD](#usage-with-epgsql-tbd)
-    + [Alternative wrappers TBD](#alternative-wrappers-tbd)
-  * [Purely functional approach](#purely-functional-approach)
-    + [Purity tool #1: effects externalization](#purity-tool--1--effects-externalization)
-    + [Purity tool #2: make effects explicit](#purity-tool--2--make-effects-explicit)
-    + [Used functional programming abstractions](#used-functional-programming-abstractions)
-      - [Functions composition](#functions-composition)
-      - [Functor applications](#functor-applications)
-      - [Partial function applications](#partial-function-applications)
 
 # Erlang ❤ pure Postgres migrations
+Migrate your Erlang application database with this toolkit.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
 purpose. It is to migrate Postgres database, using Erlang stack. And as an
 extra - do this in "no side-effects" mode aka purely functional.
