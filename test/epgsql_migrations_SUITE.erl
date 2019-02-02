@@ -7,7 +7,8 @@
 -compile(export_all).
 
 all() -> [
-          migrate_one_script_test
+          migrate_one_script_test,
+          migrate_few_scripts_test
          ].
 
 migrate_one_script_test(Opts) ->
@@ -24,6 +25,24 @@ migrate_one_script_test(Opts) ->
        {ok, _,[{<<"0">>}]},
        epgsql:squery(Conn, "select max(version) from database_migrations_history")).
 
+migrate_few_scripts_test(Opts) ->
+    Conn = ?config(conn, Opts),
+    PreparedCall = engine:migrate(
+                     filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
+                     fun(F) ->
+                             epgsql:with_transaction(Conn, fun(_) -> F() end)
+                     end,
+                     epgsql_query_fun(Conn)
+                    ),
+    ?assertEqual(ok, PreparedCall()),
+    ?assertMatch(
+       {ok, _,[{<<"1">>}]},
+       epgsql:squery(Conn, "select max(version) from database_migrations_history")),
+    ?assertMatch(
+       {ok, _,[{<<"1">>}]},
+       epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
+
+
 epgsql_query_fun(Conn) ->
     fun(Q) ->
             Res = epgsql:squery(Conn, Q),
@@ -34,7 +53,8 @@ epgsql_query_fun(Conn) ->
                       {column, <<"version">>, _, _, _, _, _},
                       {column, <<"filename">>, _, _, _, _, _}], Data} -> Data;
                 {ok, [{column, <<"max">>, _, _, _, _, _}], [{null}]} -> -1;
-                {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} -> N;
+                {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} ->
+                    list_to_integer(binary:bin_to_list(N));
                 [{ok, _, _}, {ok, _}] -> ok;
                 {ok, _, _} -> ok;
                 {ok, _} -> ok;

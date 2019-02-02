@@ -20,21 +20,21 @@ migrate(Path, FTx, FQuery) ->
     end.
 
 do_migration(Path, FQuery, {V, F}) ->
-    ExpectedVersion = FQuery(dialect_postgres:latest_existing_version()) + 1,
-    case V of
-        ExpectedVersion ->
-            ScriptPath = filename:join(Path, F),
-            compose(
-              fun() -> file:read_file(ScriptPath) end,
-              fun({ok, ScriptBody}) ->
+    ScriptPath = filename:join(Path, F),
+    compose(
+      fun() -> file:read_file(ScriptPath) end,
+      fun({ok, ScriptBody}) ->
+              ExpectedVersion = FQuery(dialect_postgres:latest_existing_version()) + 1,
+              case V of
+                  ExpectedVersion ->
                       ok = FQuery(ScriptBody),
-                      ok = FQuery(dialect_postgres:save_migration(V, F))
-              end);
-        _ -> {
-              error,
-              unexpected_version,
-              {expected, ExpectedVersion, supplied, V}}
-    end;
+                      ok = FQuery(dialect_postgres:save_migration(V, F));
+                  _ -> {
+                        error,
+                        unexpected_version,
+                        {expected, ExpectedVersion, supplied, V}}
+              end
+      end);
 do_migration(_Path, _FQuery, Error) -> Error.
 
 find_migrations(ScriptsLocation, FQuery) ->
