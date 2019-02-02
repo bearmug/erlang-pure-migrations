@@ -5,16 +5,15 @@
 
 -compile(export_all).
 
-all() -> [
-          invalid_location_test,
-          no_number_filename_test,
-          invalid_format_filename_test,
-          regular_upgrade_test,
-          rewrite_version_test,
-          faulty_script_test,
-          start_not_from_zero_test,
-          versions_gap_test,
-          negative_version_test
+all() -> [ invalid_location_test
+         , no_number_filename_test
+         , invalid_format_filename_test
+         , regular_upgrade_test
+         , rewrite_version_test
+         , faulty_script_test
+         , start_not_from_zero_test
+         , versions_gap_test
+         , negative_version_test
          ].
 
 invalid_location_test(_Opts) ->
@@ -59,7 +58,7 @@ regular_upgrade_test(Opts) ->
                      fun(F) -> F() end,
                      query_fun([], ok)
                     ),
-    ?assertEqual([ok], PreparedCall()).
+    ?assertEqual(ok, PreparedCall()).
 
 rewrite_version_test(Opts) ->
     PreparedCall = engine:migrate(
@@ -68,7 +67,7 @@ rewrite_version_test(Opts) ->
                      query_fun([{0, "00_very_first_script.sql"}], ok)
                     ),
     ?assertError(
-       {badfun, {error,unexpected_version, {expected, 1, supplied, 0}}},
+       {badmatch, {error,unexpected_version, {expected, 1, supplied, 0}}},
        PreparedCall()).
 
 faulty_script_test(Opts) ->
@@ -88,7 +87,7 @@ start_not_from_zero_test(Opts) ->
                      query_fun([], ok)
                     ),
     ?assertError(
-       {badfun, {error,unexpected_version, {expected, 0, supplied, 2}}},
+       {badmatch, {error,unexpected_version, {expected, 0, supplied, 2}}},
        PreparedCall()).
 
 versions_gap_test(Opts) ->
@@ -98,7 +97,7 @@ versions_gap_test(Opts) ->
                      query_fun([{0, "00_very_first_script.sql"}], ok)
                     ),
     ?assertError(
-       {badfun, {error,unexpected_version, {expected, 1, supplied, 2}}},
+       {badmatch, {error,unexpected_version, {expected, 1, supplied, 2}}},
        PreparedCall()).
 
 negative_version_test(Opts) ->
@@ -108,7 +107,7 @@ negative_version_test(Opts) ->
                      query_fun([], ok)
                     ),
     ?assertError(
-       {badfun, {error,unexpected_version, {expected, 0, supplied, -1}}},
+       {badmatch, {error,unexpected_version, {expected, 0, supplied, -1}}},
        PreparedCall()).
 
 query_fun(ExistingVersions, MigrationResponse) ->
