@@ -6,7 +6,8 @@ services:
   - postgresql
 
 before_script:
-  - psql -c 'create database migrations_test;' -U postgres
+  - psql -c "CREATE DATABASE migration;" -U postgres
+  - psql -c "CREATE USER migration WITH PASSWORD 'migration';" -U postgres
 
 language: erlang
 
