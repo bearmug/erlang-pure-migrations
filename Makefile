@@ -6,7 +6,7 @@ all: clean code-checks test cover
 
 travis: all coveralls
 
-local: format all
+local: format postgres-bounce all postgres-down
 
 clean:
 	$(REBAR) clean
@@ -18,7 +18,7 @@ code-checks: compile
 	$(REBAR) dialyzer
 	$(REBAR) as lint lint
 
-test: compile postgres-up
+test: compile
 	$(REBAR) as test do ct -v
 
 cover:
@@ -31,7 +31,9 @@ format:
 	$(REBAR) fmt
 
 postgres-up:
-	$(DOCKER) run --name $(CONTAINER_NAME) -e POSTGRES_PASSWORD=postgres -d postgres:9.6-alpine
+	$(DOCKER) run --name $(CONTAINER_NAME) --rm -e POSTGRES_PASSWORD=postgres -d postgres:9.6-alpine
 
 postgres-down:
-	$(DOCKER) stop $(CONTAINER_NAME)
+	-$(DOCKER) rm -f $(CONTAINER_NAME)
+
+postgres-bounce: postgres-down postgres-up
