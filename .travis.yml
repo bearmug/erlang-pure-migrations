@@ -5,6 +5,9 @@ cache:
 services:
   - postgresql
 
+addons:
+  postgresql: "9.4"
+
 before_script:
   - psql -c "CREATE DATABASE migration;" -U postgres
   - psql -c "CREATE USER migration WITH PASSWORD 'migration';" -U postgres
