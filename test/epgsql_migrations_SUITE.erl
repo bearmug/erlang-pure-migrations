@@ -83,7 +83,19 @@ incremental_migration_test(Opts) ->
        {ok, _,[{<<"1">>}]},
        epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
 
-wrong_initial_version_test(_Opts) -> ok.
+wrong_initial_version_test(Opts) ->
+    Conn = ?config(conn, Opts),
+    PreparedCall = engine:migrate(
+                     filename:join([?config(data_dir, Opts), "02-wrong-initial-version"]),
+                     fun(F) ->
+                             epgsql:with_transaction(Conn, fun(_) -> F() end)
+                     end,
+                     epgsql_query_fun(Conn)
+                    ),
+    ?assertEqual(
+       {rollback, {badmatch, {error, unexpected_version, {expected, 0, supplied, 20}}}},
+       PreparedCall()).
+
 migration_gap_test(_Opts) -> ok.
 transactional_migration_test(_Opts) -> ok.
 
