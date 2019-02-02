@@ -19,7 +19,10 @@ migrate_one_script_test(Opts) ->
                      end,
                      epgsql_query_fun(Conn)
                     ),
-    ?assertEqual(ok, PreparedCall()).
+    ?assertEqual(ok, PreparedCall()),
+    ?assertMatch(
+       {ok, _,[{<<"0">>}]},
+       epgsql:squery(Conn, "select max(version) from database_migrations_history")).
 
 epgsql_query_fun(Conn) ->
     fun(Q) ->
@@ -51,7 +54,7 @@ init_per_testcase(_TestCase, Opts) ->
                                database => Database,
                                timeout => Timeout
                               }),
-    {ok, _, _} = epgsql:squery(C, "DROP TABLE IF EXISTS database_migrations_history"),
+    {ok, _, _} = epgsql:squery(C, "DROP TABLE IF EXISTS database_migrations_history, fruit"),
     [{conn, C}|Opts].
 
 end_per_testcase(_TestCase, Opts) ->
