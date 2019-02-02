@@ -42,6 +42,38 @@ migrate_few_scripts_test(Opts) ->
        {ok, _,[{<<"1">>}]},
        epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
 
+incremental_migration_test(Opts) ->
+  Conn = ?config(conn, Opts),
+  TxFun =
+    fun(F) ->
+    epgsql:with_transaction(Conn, fun(_) -> F() end)
+          end,
+  MigrationStep1 = engine:migrate(
+    filename:join([?config(data_dir, Opts), "00-single-script-test"]),
+    TxFun, epgsql_query_fun(Conn)
+  ),
+  MigrationStep2 = engine:migrate(
+    filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
+    TxFun, epgsql_query_fun(Conn)
+  ),
+
+  %% assert migrations table created and nothing done
+
+
+  %% assert step 1 migration
+  ok = MigrationStep1(),
+  ?assertMatch(
+    {ok, _,[{<<"0">>}]},
+    epgsql:squery(Conn, "select max(version) from database_migrations_history")),
+
+  %% assert step 2 migration
+  ok =MigrationStep2(),
+  ?assertMatch(
+    {ok, _,[{<<"1">>}]},
+    epgsql:squery(Conn, "select max(version) from database_migrations_history")),
+  ?assertMatch(
+    {ok, _,[{<<"1">>}]},
+    epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
 
 epgsql_query_fun(Conn) ->
     fun(Q) ->
