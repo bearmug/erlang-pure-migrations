@@ -128,13 +128,28 @@ migration_gap_test(Opts) ->
        {error, {error, error, _, undefined_column, <<"column \"color\" does not exist">>, _}},
        epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
 
-transactional_migration_test(_Opts) -> ok.
+transactional_migration_test(Opts) ->
+    Conn = ?config(conn, Opts),
+    PreparedCall = engine:migrate(
+                     filename:join([?config(data_dir, Opts), "04-last-migration-fail"]),
+                     fun(F) ->
+                             epgsql:with_transaction(Conn, fun(_) -> F() end)
+                     end,
+                     epgsql_query_fun(Conn)
+                    ),
+    ?assertMatch(
+       {rollback, {badmatch, {error, {error, error, _, syntax_error, _, _}}}},
+       PreparedCall()),
+    ?assertMatch(
+       {ok, _,[{null}]},
+       epgsql:squery(Conn, "select max(version) from database_migrations_history")),
+    ?assertMatch(
+       {error,{error, _, _, undefined_table, <<"relation \"fruit\" does not exist">>, _}},
+       epgsql:squery(Conn, "select count(*) from fruit")).
 
 epgsql_query_fun(Conn) ->
     fun(Q) ->
-            Res = epgsql:squery(Conn, Q),
-            io:format("epgsql_query_fun ~p -> ~p~n",[Q, Res]),
-            case Res of
+            case epgsql:squery(Conn, Q) of
                 ok -> ok;
                 {ok, [
                       {column, <<"version">>, _, _, _, _, _},
