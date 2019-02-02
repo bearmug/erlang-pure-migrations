@@ -31,7 +31,12 @@ format:
 	$(REBAR) fmt
 
 postgres-up:
-	$(DOCKER) run --name $(CONTAINER_NAME) --rm -e POSTGRES_PASSWORD=postgres -d postgres:9.6-alpine
+	$(DOCKER) run --name $(CONTAINER_NAME) \
+	-p 5432:5432 \
+	-e POSTGRES_PASSWORD=migration \
+	-e POSTGRES_USER=migration \
+	-e POSTGRES_DB=migration \
+	-d postgres:9.6-alpine
 
 postgres-down:
 	-$(DOCKER) rm -f $(CONTAINER_NAME)
