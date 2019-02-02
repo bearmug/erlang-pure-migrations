@@ -2,6 +2,12 @@ cache:
   directories:
     - ./_build/plt
 
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database migrations_test;' -U postgres
+
 language: erlang
 
 otp_release:
