@@ -71,16 +71,16 @@ incremental_migration_test(Opts) ->
     %% assert step 1 migration
     ok = MigrationStep1(),
     ?assertMatch(
-       {ok, _,[{<<"0">>}]},
+       {ok, _, [{<<"0">>}]},
        epgsql:squery(Conn, "select max(version) from database_migrations_history")),
 
     %% assert step 2 migration
     ok =MigrationStep2(),
     ?assertMatch(
-       {ok, _,[{<<"1">>}]},
+       {ok, _, [{<<"1">>}]},
        epgsql:squery(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {ok, _,[{<<"1">>}]},
+       {ok, _, [{<<"1">>}]},
        epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
 
 wrong_initial_version_test(Opts) ->
@@ -141,10 +141,10 @@ transactional_migration_test(Opts) ->
        {rollback, {badmatch, {error, {error, error, _, syntax_error, _, _}}}},
        PreparedCall()),
     ?assertMatch(
-       {ok, _,[{null}]},
+       {ok, _, [{null}]},
        epgsql:squery(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {error,{error, _, _, undefined_table, <<"relation \"fruit\" does not exist">>, _}},
+       {error, {error, _, _, undefined_table, <<"relation \"fruit\" does not exist">>, _}},
        epgsql:squery(Conn, "select count(*) from fruit")).
 
 epgsql_query_fun(Conn) ->
