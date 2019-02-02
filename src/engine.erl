@@ -58,4 +58,4 @@ version_and_filename(F) ->
 
 compose(F1, F2) -> fun() -> F2(F1()) end.
 map(Generate, Map) -> fun() -> [Map(R) || R <- Generate()] end.
-flatten(Generate) -> fun() -> [ok = R() || R <- Generate()] end.
+flatten(Generate) -> fun() -> [ok = R() || R <- Generate()], ok end.

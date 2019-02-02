@@ -59,7 +59,7 @@ regular_upgrade_test(Opts) ->
                      fun(F) -> F() end,
                      query_fun([], ok)
                     ),
-    ?assertEqual([ok], PreparedCall()).
+    ?assertEqual(ok, PreparedCall()).
 
 rewrite_version_test(Opts) ->
     PreparedCall = engine:migrate(

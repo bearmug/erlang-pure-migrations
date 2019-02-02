@@ -14,7 +14,7 @@ migrations_names() ->
 
 save_migration(Version, Filename) ->
   lists:flatten(io_lib:format(
-    "INSERT INTO database_migrations_history(version, filename) VALUES (~w, ~s)",
+    "INSERT INTO database_migrations_history(version, filename) VALUES (~w, '~s')",
     [Version, Filename])).
 
 latest_existing_version() ->
