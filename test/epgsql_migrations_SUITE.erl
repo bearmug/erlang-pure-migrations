@@ -6,10 +6,9 @@
 
 -compile(export_all).
 
-all() -> [
-          migrate_one_script_test,
-          migrate_few_scripts_test,
-          incremental_migration_test
+all() -> [ migrate_one_script_test
+  , migrate_few_scripts_test
+  , incremental_migration_test
          ].
 
 migrate_one_script_test(Opts) ->
