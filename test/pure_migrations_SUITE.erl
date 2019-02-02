@@ -5,16 +5,15 @@
 
 -compile(export_all).
 
-all() -> [
-          invalid_location_test,
-          no_number_filename_test,
-          invalid_format_filename_test,
-          regular_upgrade_test,
-          rewrite_version_test,
-          faulty_script_test,
-          start_not_from_zero_test,
-          versions_gap_test,
-          negative_version_test
+all() -> [ invalid_location_test
+         , no_number_filename_test
+         , invalid_format_filename_test
+         , regular_upgrade_test
+         , rewrite_version_test
+         , faulty_script_test
+         , start_not_from_zero_test
+         , versions_gap_test
+         , negative_version_test
          ].
 
 invalid_location_test(_Opts) ->
