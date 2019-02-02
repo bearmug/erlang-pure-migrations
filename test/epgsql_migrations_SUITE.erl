@@ -22,6 +22,7 @@ init_per_testcase(_TestCase, Opts) ->
                                database => Database,
                                timeout => Timeout
                               }),
+    {ok, _, _} = epgsql:squery(C, "DROP TABLE IF EXISTS database_migrations_history"),
     [{conn, C}|Opts].
 
 end_per_testcase(_TestCase, Opts) ->
