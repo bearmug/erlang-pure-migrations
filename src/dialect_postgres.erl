@@ -1,6 +1,6 @@
 -module(dialect_postgres).
 
--export([init/0, migrations_names/0, save_migration/2, latest_existing_version/0]).
+-export([init/0, migrations_done/0, save_migration/2, latest_existing_version/0]).
 
 init() ->
     "CREATE TABLE IF NOT EXISTS database_migrations_history (
@@ -9,7 +9,7 @@ init() ->
     creation_timestamp TIMESTAMP NOT NULL DEFAULT NOW()
         )".
 
-migrations_names() ->
+migrations_done() ->
   "SELECT version, filename FROM database_migrations_history".
 
 save_migration(Version, Filename) ->

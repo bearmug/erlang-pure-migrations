@@ -150,7 +150,6 @@ transactional_migration_test(Opts) ->
 epgsql_query_fun(Conn) ->
     fun(Q) ->
             case epgsql:squery(Conn, Q) of
-                ok -> ok;
                 {ok, [
                       {column, <<"version">>, _, _, _, _, _},
                       {column, <<"filename">>, _, _, _, _, _}], Data} ->
@@ -171,7 +170,7 @@ init_per_testcase(_TestCase, Opts) ->
           {database, Database},
           {username, Username},
           {secret, Secret},
-          {timeout, Timeout}]} = application:get_env(db, config),
+          {timeout, Timeout}]} = application:get_env(postgres, config),
     {ok, C} = epgsql:connect(Host, Username, Secret,
                              #{
                                database => Database,
