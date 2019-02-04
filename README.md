@@ -13,7 +13,7 @@ As an extra - do this in "no side-effects" mode.
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
   * [Live code samples](#live-code-samples)
-    + [Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql--sample)
+    + [Postgres and epgsql/epgsql sample](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql--sample)
 - [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
   * [Tool #1: effects externalization](#tool--1--effects-externalization)
   * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
