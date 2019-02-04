@@ -17,12 +17,18 @@ As an extra - do this in "no side-effects" mode.
  of frameworks (see tested combinations here) and so on.
 
 ## Quick start
-Just call `engine:migrate/3`, providing:
+Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), providing:
  * `Path` to migration scripts folder (strictly and incrementally enumerated).
  * `FTx` transaction handler
  * `FQuery` database queries execution handler
-### Live samples
-#### [Postgres](https://github.com/postgres/postgres) and [epgsql/epgsql](https://github.com/epgsql/epgsql)
+
+### Compatibility table
+| Database dialect | Library |
+| ------------- | ------------- |
+| postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1)  |
+
+### Live code samples
+#### [Postgres](https://github.com/postgres/postgres) and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
 <details>
   <summary>Click to expand</summary>
 
