@@ -8,7 +8,9 @@ This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philo
 purpose - consistently upgrade database schema, using Erlang stack.
 As an extra - do this in "no side-effects" mode.
 
-## Current limitations
+# Table of content
+
+# Current limitations
  * **up** transactional migration available only. No **downgrade**
  or **rollback** possible. Either whole **up** migration completes OK
  or failed and rolled back to the state before migration.
@@ -16,19 +18,19 @@ As an extra - do this in "no side-effects" mode.
  database library**. This way engine user is free to choose from variety
  of frameworks (see tested combinations here) and so on.
 
-## Quick start
+# Quick start
 Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), providing:
  * `Path` to migration scripts folder (strictly and incrementally enumerated).
  * `FTx` transaction handler
  * `FQuery` database queries execution handler
 
-### Compatibility table
+## Compatibility table
 | Database dialect | Library |
-| ------------- | ------------- |
+| -------------- | ------ |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1)  |
 
-### Live code samples
-#### [Postgres](https://github.com/postgres/postgres) and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
+## Live code samples
+### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
 <details>
   <summary>Click to expand</summary>
 
@@ -64,70 +66,40 @@ Also see examples from live epgsql integration tests
 [here](test/epgsql_migrations_SUITE.erl)
 </details>
 
-
-## Versioning model
-### Versioning strictness
-As mentioned, versioning model is very opinionated and declares itself
-as strictly incremental from 0 and upwards. With given approach, there is
-no way for conflicting database updates, applied from different pull-requests
-or branches (depends on deployment model).
-### No-downgrades policy
-As you may see, there is **no downgrade feature available**. Please
-consider this while evaluating library for your project. This hasn't been
-tooling in order to:
- * keep tooling as simple as possible, obviously :)
- * delegate upcoming upgrades validation to CI with
-   unit/integration/acceptance tests chain. Decent test pack and reasonable
-   CI/CD process (metric-based rollouts, monitored environments, controlled
-   test coverage regression) making database rollback feature virtually
-   unused. And without healthy and automated CI/CD cycle there are much
-   more opportunities to break the system. Database rollback opportunity
-   could be little to no help.
-
-### Usage with epgsql TBD
-### Alternative wrappers TBD
-
-## Purely functional approach
+# No-effects approach and tools used to achieve it
 Oh, **there is more!** Library implemented in the [way](https://en.wikipedia.org/wiki/Pure_function),
-that all side-effects either externalized or deferred explicitly. Goals
-are quite common and well-known:
- * bring side-effects as close to program edges as possible. And
- eventually have referential transparency, enhanced code reasoning, better
- bugs reproduceability, etc...
- * make unit testing as simple as breeze
+that all side-effects either externalized or deferred explicitly. Reasons
+are quite common:
+ * bring side-effects as close to program edges as possible. Which may
+ mean enhanced code reasoning, better bugs reproduceability, etc...
+ * simplify module contracts testing
  * library users empowered to re-run idempotent code safely. Well, if
  tx/query handlers are real ones - execution is still idempotent (at
  application level) and formally pure. But purity maintained inside
- library code only. Some query calls are to be done anyway (like migrations
- table creation, if this one does not exist).
+ library code only. One call is to be issued anyway - migrations
+ table creation, if this one does not exists.
 
-### Purity tool #1: effects externalization
+## Tool #1: effects externalization
 There are 2 externalized kind of effects:
  * transaction management handler
  * database queries handler
-Although, those two can`t be pure in real application, it is failrly
+Although, those two can`t be pure in real application, it is fairly
 simple to replace them with their pure versions if we would like to
 (for debug purposes, or testing, or something else).
 
-### Purity tool #2: make effects explicit
-Other effects (file operations, like directory listing or file content
-read) are deferred in bulk. This way 2 goals achieved:
- * pure actions sequence built and validated without any impact from
- external world
- * library users decides if regarding moment, when they ready to apply
- changes. Maybe for some reason they would like to prepare execution ->
- change migrations folder content -> run migrations.
+## Tool #2: make effects explicit
+Other effects (like file operations) are deferred in bulk with outcome
+like:
+ * pure referentially-transparent program actions composed only. Impact
+ or any communication with external world postponed until later stages
+ * library users decide when they ready to apply migration changes.
+ Maybe for some reason they would like to prepare execution ->
+ prepare migrations folder content -> run migrations.
 
-### Used functional programming abstractions
-Sure, Erlang is deeply funcitonal language. But at the same time, for
-obvious reasons ( 1)not much people need tools like these 2)it is deadly
- simple to implement required abstractions on your own), there are no
-(at least I did not manage to find) widely used functional primitives
-Erlang library.
-
-#### Functions composition
-Abstraction quite useful if someone would like to compose two functions
-without their actual nested execution (or without their application,
+# Functional programming abstractions used
+## Functions composition
+This trick is quite useful if someone would like to compose two functions
+without their actual execution (or without their application,
 alternatively speaking). This pretty standard routine may look like below
 (Scala or Kotlin+Arrow):
 ```scala
@@ -135,11 +107,9 @@ val divideByTwo = (number : Int) => number / 2;
 val addThree = (number: Int) => number + 3;
 val composed = addThree compose divideByTwo
 ```
-To keep things close to the ground and avoiding infix notation, in
-Erlang it is could be represented like:
+Simplistic Erlang version:
 ```erlang
-compose(F1, F2) ->
-  fun() -> F2(F1()) end.
+compose(F1, F2) -> fun() -> F2(F1()) end.
 ```
 You may find library funcitonal composition example in a few locations
 [here](https://github.com/bearmug/oleg-migrations/blob/make-engine-free-of-side-effects/src/oleg_engine.erl#L36).
