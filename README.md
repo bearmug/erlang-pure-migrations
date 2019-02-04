@@ -37,9 +37,9 @@ Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), prov
  * `FQuery` database queries execution handler
 
 ## Compatibility table
-| Database dialect | Library |
-| -------------- | ------ |
-| postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1)  |
+| Database dialect | Library | Example |
+| -------------- | ------ | ------- |
+| postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test]((test/epgsql_migrations_SUITE.erl))
 
 ## Live code samples
 ### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
