@@ -9,6 +9,18 @@ purpose - consistently upgrade database schema, using Erlang stack.
 As an extra - do this in "no side-effects" mode.
 
 # Table of content
+- [Current limitations](#current-limitations)
+- [Quick start](#quick-start)
+  * [Compatibility table](#compatibility-table)
+  * [Live code samples](#live-code-samples)
+    + [Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql--sample)
+- [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
+  * [Tool #1: effects externalization](#tool--1--effects-externalization)
+  * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
+- [Functional programming abstractions used](#functional-programming-abstractions-used)
+  * [Functions composition](#functions-composition)
+  * [Functor applications](#functor-applications)
+  * [Partial function applications](#partial-function-applications)
 
 # Current limitations
  * **up** transactional migration available only. No **downgrade**
@@ -16,7 +28,7 @@ As an extra - do this in "no side-effects" mode.
  or failed and rolled back to the state before migration.
  * migrations engine **deliberately isolated from any specific
  database library**. This way engine user is free to choose from variety
- of frameworks (see tested combinations here) and so on.
+ of frameworks (see tested combinations [here](#compatibility-table)) and so on.
 
 # Quick start
 Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), providing:
@@ -56,7 +68,7 @@ Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), prov
         end
       end),
   ...
-  %% more preparation steps here
+  %% more preparation steps
   ...
   %% migration call
   ok = MigrationCall(),
@@ -112,7 +124,7 @@ Simplistic Erlang version:
 compose(F1, F2) -> fun() -> F2(F1()) end.
 ```
 
-#### Functor applications
+## Functor applications
 There area few places in library with clear need to compose function **A**
 and another function **B** inside deferred execution context. Specifics is
 that **A** supplies list of objects, and **B** should be applied to each of
@@ -128,7 +140,7 @@ map(Generate, Map) -> fun() -> [Map(R) || R <- Generate()] end.
 ```erlang
 flatten(Generate) -> fun() -> [ok = R() || R <- Generate()], ok end.
 ```
-#### Partial function applications
+## Partial function applications
 Partial application is very useful, in case if not all function arguments
 known yet. Or maybe there is deliberate decision to pass some of arguments
 later on. Again, in Scala it may look like:
