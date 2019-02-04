@@ -9,8 +9,8 @@ purpose - consistently upgrade database schema, using Erlang stack.
 As an extra - do this in "no side-effects" mode.
 
 ## Current limitations
- * **up** transactional migration available only. There is no **downgrade**
- or **rollback** available. Either whole **up** migration complete OK
+ * **up** transactional migration available only. No **downgrade**
+ or **rollback** possible. Either whole **up** migration completes OK
  or failed and rolled back to the state before migration.
  * migrations engine **deliberately isolated from any specific
  database library**. This way engine user is free to choose from variety
@@ -24,33 +24,35 @@ Just call `engine:migrate/3`, providing:
 ### Live samples
 #### [Postgres](https://github.com/postgres/postgres) and [epgsql/epgsql](https://github.com/epgsql/epgsql)
 <details>
-  <summary>[Postgres](https://github.com/postgres/postgres) and [epgsql/epgsql](https://github.com/epgsql/epgsql)</summary>
+  <summary>Click to expand</summary>
 
   ```erlang
   Conn = ?config(conn, Opts),
-  PreparedCall =
+  MigrationCall =
     engine:migrate(
       "scripts/folder/path",
       fun(F) -> epgsql:with_transaction(Conn, fun(_) -> F() end) end,
-      epgsql_query_fun(Conn)),
-  ok = PreparedCall(),
+      fun(Q) ->
+        case epgsql:squery(Conn, Q) of
+          {ok, [
+            {column, <<"version">>, _, _, _, _, _},
+            {column, <<"filename">>, _, _, _, _, _}], Data} ->
+              [{list_to_integer(binary_to_list(BinV)), binary_to_list(BinF)} || {BinV, BinF} <- Data];
+          {ok, [{column, <<"max">>, _, _, _, _, _}], [{null}]} -> -1;
+          {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} ->
+            list_to_integer(binary_to_list(N));
+          [{ok, _, _}, {ok, _}] -> ok;
+          {ok, _, _} -> ok;
+          {ok, _} -> ok;
+          Default -> Default
+        end
+      end),
+  ...
+  %% more preparation steps here
+  ...
+  %% migration call
+  ok = MigrationCall(),
 
-  epgsql_query_fun(Conn) ->
-    fun(Q) ->
-      case epgsql:squery(Conn, Q) of
-        {ok, [
-          {column, <<"version">>, _, _, _, _, _},
-          {column, <<"filename">>, _, _, _, _, _}], Data} ->
-            [{list_to_integer(binary_to_list(BinV)), binary_to_list(BinF)} || {BinV, BinF} <- Data];
-        {ok, [{column, <<"max">>, _, _, _, _, _}], [{null}]} -> -1;
-        {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} ->
-          list_to_integer(binary_to_list(N));
-        [{ok, _, _}, {ok, _}] -> ok;
-        {ok, _, _} -> ok;
-        {ok, _} -> ok;
-        Default -> Default
-      end
-    end.
   ```
 Also see examples from live epgsql integration tests
 [here](test/epgsql_migrations_SUITE.erl)
