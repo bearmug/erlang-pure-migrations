@@ -1,27 +1,61 @@
+# Erlang ❤ pure database migrations
+> Database migrations engine. Effects-free.
+
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations) [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 
-
-# Erlang ❤ pure Postgres migrations
-Migrate your Erlang application database with this toolkit.
+Migrate your Erlang application database with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
-purpose. It is to migrate Postgres database, using Erlang stack. And as an
-extra - do this in "no side-effects" mode aka purely functional.
+purpose - consistently upgrade database schema, using Erlang stack.
+As an extra - do this in "no side-effects" mode.
 
-Please note - library provides migrations engine capabilities only. You
-will need to pass two handlers (or functions) there:
- * transaction handler, which apen/commit/rollback transactions scope
- * queries handler, to run queries against database
-For more details see short in-code [specification](https://github.com/bearmug/oleg-migrations/blob/master/src/oleg_engine.erl#L7).
+## Current limitations
+ * **up** transactional migration available only. There is no **downgrade**
+ or **rollback** available. Either whole **up** migration complete OK
+ or failed and rolled back to the state before migration.
+ * migrations engine **deliberately isolated from any specific
+ database library**. This way engine user is free to choose from variety
+ of frameworks (see tested combinations here) and so on.
 
 ## Quick start
 Just call `engine:migrate/3`, providing:
- * `Path` to migration scripts. Those should be versioned strictly
- incrementally from starting from 0 over their names with speparating `_`
- symbol. For example: `0_create_database.sql` or `005_UPDATE-IMPORTANT-FILED`.
- *  `FTx` handler to manage transaction scope. See signature details [here](https://github.com/bearmug/oleg-migrations/blob/make-engine-free-of-side-effects/src/oleg_engine.erl#L9)
-    and also usage examples into integration tests pack.
- *  `FQuery` to communicate with database, please see signature details,
-    since library needs to be answered with number or list of strings
+ * `Path` to migration scripts folder (strictly and incrementally enumerated).
+ * `FTx` transaction handler
+ * `FQuery` database queries execution handler
+### Live samples
+#### [Postgres](https://github.com/postgres/postgres) and [epgsql/epgsql](https://github.com/epgsql/epgsql)
+<details>
+  <summary>[Postgres](https://github.com/postgres/postgres) and [epgsql/epgsql](https://github.com/epgsql/epgsql)</summary>
+
+  ```erlang
+  Conn = ?config(conn, Opts),
+  PreparedCall =
+    engine:migrate(
+      "scripts/folder/path",
+      fun(F) -> epgsql:with_transaction(Conn, fun(_) -> F() end) end,
+      epgsql_query_fun(Conn)),
+  ok = PreparedCall(),
+
+  epgsql_query_fun(Conn) ->
+    fun(Q) ->
+      case epgsql:squery(Conn, Q) of
+        {ok, [
+          {column, <<"version">>, _, _, _, _, _},
+          {column, <<"filename">>, _, _, _, _, _}], Data} ->
+            [{list_to_integer(binary_to_list(BinV)), binary_to_list(BinF)} || {BinV, BinF} <- Data];
+        {ok, [{column, <<"max">>, _, _, _, _, _}], [{null}]} -> -1;
+        {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} ->
+          list_to_integer(binary_to_list(N));
+        [{ok, _, _}, {ok, _}] -> ok;
+        {ok, _, _} -> ok;
+        {ok, _} -> ok;
+        Default -> Default
+      end
+    end.
+  ```
+Also see examples from live epgsql integration tests
+[here](test/epgsql_migrations_SUITE.erl)
+</details>
+
 
 ## Versioning model
 ### Versioning strictness
