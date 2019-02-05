@@ -40,6 +40,7 @@ Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), prov
 | Database dialect | Library | Example |
 | -------------- | ------ | ------- |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
+| postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
 
 ## Live code samples
 ### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
@@ -76,6 +77,51 @@ Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), prov
   ```
 Also see examples from live epgsql integration tests
 [here](test/epgsql_migrations_SUITE.erl)
+</details>
+
+### Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql) sample
+<details>
+  <summary>Click to expand</summary>
+
+  ```erlang
+  Conn = ?config(conn, Opts),
+  MigrationCall =
+    engine:migrate(
+      "scripts/folder/path",
+      fun(F) ->
+        pgsql_connection:simple_query("BEGIN", Conn),
+        try F() of
+          Res ->
+            pgsql_connection:simple_query("COMMIT", Conn),
+            Res
+        catch
+           _:Problem ->
+             pgsql_connection:simple_query("ROLLBACK", Conn),
+             {rollback, Problem}
+        end
+      end,
+      fun(Q) ->
+        case pgsql_connection:simple_query(Q, Conn) of
+          {{select, 0}, []} -> [];
+          {{select, 1}, Data = [{_V, _F}|_]}  ->
+            [{V, binary_to_list(BinF)} || {V, BinF} <- Data];
+          {{select, 1}, [{null}]} -> -1;
+          {{select, 1}, [{N}]} -> N;
+          {{insert, 0, 1}, []} -> ok;
+          {{create, table},[]} -> ok;
+          {error, Details} -> {error, Details};
+          _ -> ok
+        end
+      end),
+  ...
+  %% more preparation steps
+  ...
+  %% migration call
+  ok = MigrationCall(),
+
+  ```
+Also see examples from live semiocast/pgsql integration tests
+[here](test/spgsql_migrations_SUITE.erl)
 </details>
 
 # No-effects approach and tools used to achieve it
