@@ -74,50 +74,46 @@ incremental_migration_test(Opts) ->
        {{select, 1}, [{1}]},
        pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
 
-%%wrong_initial_version_test(Opts) ->
-%%    Conn = ?config(conn, Opts),
-%%    PreparedCall = engine:migrate(
-%%                     filename:join([?config(data_dir, Opts), "02-wrong-initial-version"]),
-%%                     fun(F) ->
-%%                             epgsql:with_transaction(Conn, fun(_) -> F() end)
-%%                     end,
-%%                     epgsql_query_fun(Conn)
-%%                    ),
-%%    ?assertEqual(
-%%       {rollback, {badmatch, {error, unexpected_version, {expected, 0, supplied, 20}}}},
-%%       PreparedCall()).
-%%
-%%migration_gap_test(Opts) ->
-%%    Conn = ?config(conn, Opts),
-%%    TxFun =
-%%        fun(F) ->
-%%                epgsql:with_transaction(Conn, fun(_) -> F() end)
-%%        end,
-%%    MigrationStep1 = engine:migrate(
-%%                       filename:join([?config(data_dir, Opts), "00-single-script-test"]),
-%%                       TxFun, epgsql_query_fun(Conn)
-%%                      ),
-%%    MigrationStep2 = engine:migrate(
-%%                       filename:join([?config(data_dir, Opts), "03-migration-gap"]),
-%%                       TxFun, epgsql_query_fun(Conn)
-%%                      ),
-%%
-%%    %% assert step 1 migration
-%%    ok = MigrationStep1(),
-%%    ?assertMatch(
-%%       {ok, _, [{<<"0">>}]},
-%%       epgsql:squery(Conn, "select max(version) from database_migrations_history")),
-%%
-%%    %% assert step 2 failed migration
-%%    ?assertEqual(
-%%       {rollback, {badmatch, {error, unexpected_version, {expected, 1, supplied, 2}}}},
-%%       MigrationStep2()),
-%%    ?assertMatch(
-%%       {ok, _, [{<<"0">>}]},
-%%       epgsql:squery(Conn, "select max(version) from database_migrations_history")),
-%%    ?assertMatch(
-%%       {error, {error, error, _, undefined_column, <<"column \"color\" does not exist">>, _}},
-%%       epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
+wrong_initial_version_test(Opts) ->
+    Conn = ?config(conn, Opts),
+    PreparedCall = engine:migrate(
+                     filename:join([?config(data_dir, Opts), "02-wrong-initial-version"]),
+                     spgsql_tx_fun(),
+                     spgsql_query_fun(Conn)
+                    ),
+    ?assertEqual(
+       {rollback, {badmatch, {error, unexpected_version, {expected, 0, supplied, 20}}}},
+       PreparedCall()).
+
+migration_gap_test(Opts) ->
+    Conn = ?config(conn, Opts),
+    MigrationStep1 = engine:migrate(
+                       filename:join([?config(data_dir, Opts), "00-single-script-test"]),
+                       spgsql_tx_fun(),
+            spgsql_query_fun(Conn)
+                      ),
+    MigrationStep2 = engine:migrate(
+                       filename:join([?config(data_dir, Opts), "03-migration-gap"]),
+                       spgsql_tx_fun(),
+      spgsql_query_fun(Conn)
+                      ),
+
+    %% assert step 1 migration
+    ok = MigrationStep1(),
+    ?assertMatch(
+       {ok, _, [{<<"0">>}]},
+      pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
+
+    %% assert step 2 failed migration
+    ?assertEqual(
+       {rollback, {badmatch, {error, unexpected_version, {expected, 1, supplied, 2}}}},
+       MigrationStep2()),
+    ?assertMatch(
+       {ok, _, [{<<"0">>}]},
+      pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
+    ?assertMatch(
+       {error, {error, error, _, undefined_column, <<"column \"color\" does not exist">>, _}},
+      pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
 %%
 %%transactional_migration_test(Opts) ->
 %%    Conn = ?config(conn, Opts),
