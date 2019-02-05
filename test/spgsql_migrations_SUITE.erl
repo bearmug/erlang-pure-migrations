@@ -8,8 +8,8 @@
 all() -> [ migrate_one_script_test
          , migrate_few_scripts_test
          , incremental_migration_test
-           %%         , wrong_initial_version_test
-           %%         , migration_gap_test
+         , wrong_initial_version_test
+         , migration_gap_test
            %%         , transactional_migration_test
          ].
 
@@ -81,8 +81,8 @@ wrong_initial_version_test(Opts) ->
                      spgsql_tx_fun(),
                      spgsql_query_fun(Conn)
                     ),
-    ?assertEqual(
-       {rollback, {badmatch, {error, unexpected_version, {expected, 0, supplied, 20}}}},
+    ?assertError(
+       {badmatch, {error, unexpected_version, {expected, 0, supplied, 20}}},
        PreparedCall()).
 
 migration_gap_test(Opts) ->
@@ -90,30 +90,30 @@ migration_gap_test(Opts) ->
     MigrationStep1 = engine:migrate(
                        filename:join([?config(data_dir, Opts), "00-single-script-test"]),
                        spgsql_tx_fun(),
-            spgsql_query_fun(Conn)
+                       spgsql_query_fun(Conn)
                       ),
     MigrationStep2 = engine:migrate(
                        filename:join([?config(data_dir, Opts), "03-migration-gap"]),
                        spgsql_tx_fun(),
-      spgsql_query_fun(Conn)
+                       spgsql_query_fun(Conn)
                       ),
 
     %% assert step 1 migration
     ok = MigrationStep1(),
     ?assertMatch(
-       {ok, _, [{<<"0">>}]},
-      pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
+       {{select, 1}, [{0}]},
+       pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
 
     %% assert step 2 failed migration
-    ?assertEqual(
-       {rollback, {badmatch, {error, unexpected_version, {expected, 1, supplied, 2}}}},
+    ?assertError(
+       {badmatch, {error, unexpected_version, {expected, 1, supplied, 2}}},
        MigrationStep2()),
     ?assertMatch(
-       {ok, _, [{<<"0">>}]},
-      pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
+       {{select, 1}, [{0}]},
+       pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
     ?assertMatch(
-       {error, {error, error, _, undefined_column, <<"column \"color\" does not exist">>, _}},
-      pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
+       {error, {pgsql_error, [_, _, _, {message, <<"column \"color\" does not exist">>}|_]}},
+       pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
 %%
 %%transactional_migration_test(Opts) ->
 %%    Conn = ?config(conn, Opts),
