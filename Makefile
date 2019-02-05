@@ -10,6 +10,8 @@ local: format postgres-bounce all postgres-down
 
 clean:
 	$(REBAR) clean
+	rm -rf ./_build/default/lib/pure_migrations
+	rm -rf ./_build/test/lib/pure_migrations
 
 compile:
 	$(REBAR) compile
