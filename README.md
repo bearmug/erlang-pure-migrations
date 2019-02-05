@@ -42,6 +42,7 @@ Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), prov
 | -------------- | ------ | ------- |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
 | postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
+| postgres  | any library with basic postgres functional | [generic test](test/pure_migrations_SUITE.erl)
 
 ## Live code samples
 ### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
