@@ -56,7 +56,7 @@ incremental_migration_test(Opts) ->
        {{select, 1}, [{null}]},
        pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
     ?assertMatch(
-       {error, {pgsql_error, [_, _, _, {message, <<"relation \"fruit\" does not exist">>}|_]}},
+       {error, {pgsql_error, _}},
        pgsql_connection:simple_query("select count(*) from fruit", Conn)),
 
     %% assert step 1 migration
@@ -112,7 +112,7 @@ migration_gap_test(Opts) ->
        {{select, 1}, [{0}]},
        pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
     ?assertMatch(
-       {error, {pgsql_error, [_, _, _, {message, <<"column \"color\" does not exist">>}|_]}},
+       {error, {pgsql_error, _}},
        pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
 
 transactional_migration_test(Opts) ->
@@ -129,7 +129,7 @@ transactional_migration_test(Opts) ->
        {{select, 1}, [{null}]},
        pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
     ?assertMatch(
-       {error, {pgsql_error, [_, _, _, {message, <<"relation \"fruit\" does not exist">>}|_]}},
+       {error, {pgsql_error, _}},
        pgsql_connection:simple_query("select count(*) from fruit", Conn)).
 
 spgsql_query_fun(Conn) ->
