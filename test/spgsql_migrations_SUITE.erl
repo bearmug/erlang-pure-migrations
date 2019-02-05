@@ -6,7 +6,7 @@
 -compile(export_all).
 
 all() -> [ migrate_one_script_test
-                    , migrate_few_scripts_test
+         , migrate_few_scripts_test
            %%         , incremental_migration_test
            %%         , wrong_initial_version_test
            %%         , migration_gap_test
@@ -29,16 +29,16 @@ migrate_few_scripts_test(Opts) ->
     Conn = ?config(conn, Opts),
     PreparedCall = engine:migrate(
                      filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
-                      spgsql_tx_fun(),
+                     spgsql_tx_fun(),
                      spgsql_query_fun(Conn)
                     ),
     ?assertEqual(ok, PreparedCall()),
     ?assertMatch(
-       {ok, _,[{<<"1">>}]},
-      pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
+       {{select, 1}, [{1}]},
+       pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
     ?assertMatch(
-       {ok, _,[{<<"1">>}]},
-      pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
+       {{select, 1}, [{1}]},
+       pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
 %%
 %%incremental_migration_test(Opts) ->
 %%    Conn = ?config(conn, Opts),
@@ -154,8 +154,7 @@ spgsql_query_fun(Conn) ->
                       {column, <<"filename">>, _, _, _, _, _}], Data} ->
                     [{list_to_integer(binary_to_list(BinV)), binary_to_list(BinF)} || {BinV, BinF} <- Data];
                 {{select, 1}, [{null}]} -> -1;
-                {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} ->
-                    list_to_integer(binary_to_list(N));
+                {{select, 1}, [{N}]} -> N;
                 {{insert, 0, 1}, []} -> ok;
                 {{create, table},[]} -> ok;
                 _ -> ok
@@ -163,7 +162,7 @@ spgsql_query_fun(Conn) ->
     end.
 
 spgsql_tx_fun() ->
-  fun(F) -> F() end.
+    fun(F) -> F() end.
 
 init_per_testcase(_TestCase, Opts) ->
     {ok, [{host, Host},
