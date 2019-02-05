@@ -6,7 +6,7 @@
 -compile(export_all).
 
 all() -> [ migrate_one_script_test
-           %%         , migrate_few_scripts_test
+                    , migrate_few_scripts_test
            %%         , incremental_migration_test
            %%         , wrong_initial_version_test
            %%         , migration_gap_test
@@ -17,32 +17,28 @@ migrate_one_script_test(Opts) ->
     Conn = ?config(conn, Opts),
     PreparedCall = engine:migrate(
                      filename:join([?config(data_dir, Opts), "00-single-script-test"]),
-                     fun(F) ->
-                             F()
-                     end,
-                     epgsql_query_fun(Conn)
+                     spgsql_tx_fun(),
+                     spgsql_query_fun(Conn)
                     ),
     ?assertEqual(ok, PreparedCall()),
     ?assertMatch(
        {{select,1},[{0}]},
        pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)).
 
-%%migrate_few_scripts_test(Opts) ->
-%%    Conn = ?config(conn, Opts),
-%%    PreparedCall = engine:migrate(
-%%                     filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
-%%                     fun(F) ->
-%%                             epgsql:with_transaction(Conn, fun(_) -> F() end)
-%%                     end,
-%%                     epgsql_query_fun(Conn)
-%%                    ),
-%%    ?assertEqual(ok, PreparedCall()),
-%%    ?assertMatch(
-%%       {ok, _,[{<<"1">>}]},
-%%       epgsql:squery(Conn, "select max(version) from database_migrations_history")),
-%%    ?assertMatch(
-%%       {ok, _,[{<<"1">>}]},
-%%       epgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
+migrate_few_scripts_test(Opts) ->
+    Conn = ?config(conn, Opts),
+    PreparedCall = engine:migrate(
+                     filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
+                      spgsql_tx_fun(),
+                     spgsql_query_fun(Conn)
+                    ),
+    ?assertEqual(ok, PreparedCall()),
+    ?assertMatch(
+       {ok, _,[{<<"1">>}]},
+      pgsql_connection:simple_query("select max(version) from database_migrations_history", Conn)),
+    ?assertMatch(
+       {ok, _,[{<<"1">>}]},
+      pgsql_connection:simple_query("select count(*) from fruit where color = 'yellow'", Conn)).
 %%
 %%incremental_migration_test(Opts) ->
 %%    Conn = ?config(conn, Opts),
@@ -146,7 +142,7 @@ migrate_one_script_test(Opts) ->
 %%       {error, {error, _, _, undefined_table, <<"relation \"fruit\" does not exist">>, _}},
 %%       epgsql:squery(Conn, "select count(*) from fruit")).
 
-epgsql_query_fun(Conn) ->
+spgsql_query_fun(Conn) ->
     fun(Q) ->
             io:format("going to query=~p~n", [Q]),
             Res = pgsql_connection:simple_query(Q, Conn),
@@ -166,7 +162,8 @@ epgsql_query_fun(Conn) ->
             end
     end.
 
-
+spgsql_tx_fun() ->
+  fun(F) -> F() end.
 
 init_per_testcase(_TestCase, Opts) ->
     {ok, [{host, Host},
