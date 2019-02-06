@@ -1,4 +1,4 @@
--module(engine).
+-module(pure_migrations).
 
 -export([migrate/3]).
 

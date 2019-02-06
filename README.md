@@ -32,7 +32,7 @@ As an extra - do this in "no side-effects" mode.
  of frameworks (see tested combinations [here](#compatibility-table)) and so on.
 
 # Quick start
-Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), providing:
+Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L9)), providing:
  * `Path` to migration scripts folder (strictly and incrementally enumerated).
  * `FTx` transaction handler
  * `FQuery` database queries execution handler
@@ -52,7 +52,7 @@ Just call `engine:migrate/3` (see specification [here](src/engine.erl#L9)), prov
   ```erlang
   Conn = ?config(conn, Opts),
   MigrationCall =
-    engine:migrate(
+    pure_migrations:migrate(
       "scripts/folder/path",
       fun(F) -> epgsql:with_transaction(Conn, fun(_) -> F() end) end,
       fun(Q) ->
@@ -88,7 +88,7 @@ Also see examples from live epgsql integration tests
   ```erlang
   Conn = ?config(conn, Opts),
   MigrationCall =
-    engine:migrate(
+    pure_migrations:migrate(
       "scripts/folder/path",
       fun(F) ->
         pgsql_connection:simple_query("BEGIN", Conn),
