@@ -16,7 +16,7 @@ all() -> [ migrate_one_script_test
 
 migrate_one_script_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "00-single-script-test"]),
                      fun(F) ->
                              epgsql:with_transaction(Conn, fun(_) -> F() end)
@@ -30,7 +30,7 @@ migrate_one_script_test(Opts) ->
 
 migrate_few_scripts_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
                      fun(F) ->
                              epgsql:with_transaction(Conn, fun(_) -> F() end)
@@ -51,11 +51,11 @@ incremental_migration_test(Opts) ->
         fun(F) ->
                 epgsql:with_transaction(Conn, fun(_) -> F() end)
         end,
-    MigrationStep1 = engine:migrate(
+    MigrationStep1 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "00-single-script-test"]),
                        TxFun, epgsql_query_fun(Conn)
                       ),
-    MigrationStep2 = engine:migrate(
+    MigrationStep2 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
                        TxFun, epgsql_query_fun(Conn)
                       ),
@@ -85,7 +85,7 @@ incremental_migration_test(Opts) ->
 
 wrong_initial_version_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "02-wrong-initial-version"]),
                      fun(F) ->
                              epgsql:with_transaction(Conn, fun(_) -> F() end)
@@ -102,11 +102,11 @@ migration_gap_test(Opts) ->
         fun(F) ->
                 epgsql:with_transaction(Conn, fun(_) -> F() end)
         end,
-    MigrationStep1 = engine:migrate(
+    MigrationStep1 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "00-single-script-test"]),
                        TxFun, epgsql_query_fun(Conn)
                       ),
-    MigrationStep2 = engine:migrate(
+    MigrationStep2 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "03-migration-gap"]),
                        TxFun, epgsql_query_fun(Conn)
                       ),
@@ -130,7 +130,7 @@ migration_gap_test(Opts) ->
 
 transactional_migration_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "04-last-migration-fail"]),
                      fun(F) ->
                              epgsql:with_transaction(Conn, fun(_) -> F() end)

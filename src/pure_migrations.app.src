@@ -1,6 +1,6 @@
 {application, pure_migrations,
  [{description, "Database Pure Migration Tool"},
-  {vsn, "0.1"},
+  {vsn, "1.0.0"},
   {licenses, ["MIT"]},
   {registered, []},
   {modules, []},

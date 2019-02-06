@@ -15,7 +15,7 @@ all() -> [ migrate_one_script_test
 
 migrate_one_script_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "00-single-script-test"]),
                      spgsql_tx_fun(Conn),
                      spgsql_query_fun(Conn)
@@ -27,7 +27,7 @@ migrate_one_script_test(Opts) ->
 
 migrate_few_scripts_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
                      spgsql_tx_fun(Conn),
                      spgsql_query_fun(Conn)
@@ -44,10 +44,10 @@ incremental_migration_test(Opts) ->
     Conn = ?config(conn, Opts),
     TxFun = spgsql_tx_fun(Conn),
     QueryFun = spgsql_query_fun(Conn),
-    MigrationStep1 = engine:migrate(
+    MigrationStep1 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "00-single-script-test"]),
                        TxFun, QueryFun),
-    MigrationStep2 = engine:migrate(
+    MigrationStep2 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "01-two-scripts-test"]),
                        TxFun, QueryFun),
 
@@ -76,7 +76,7 @@ incremental_migration_test(Opts) ->
 
 wrong_initial_version_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "02-wrong-initial-version"]),
                      spgsql_tx_fun(Conn),
                      spgsql_query_fun(Conn)
@@ -87,12 +87,12 @@ wrong_initial_version_test(Opts) ->
 
 migration_gap_test(Opts) ->
     Conn = ?config(conn, Opts),
-    MigrationStep1 = engine:migrate(
+    MigrationStep1 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "00-single-script-test"]),
                        spgsql_tx_fun(Conn),
                        spgsql_query_fun(Conn)
                       ),
-    MigrationStep2 = engine:migrate(
+    MigrationStep2 = pure_migrations:migrate(
                        filename:join([?config(data_dir, Opts), "03-migration-gap"]),
                        spgsql_tx_fun(Conn),
                        spgsql_query_fun(Conn)
@@ -117,7 +117,7 @@ migration_gap_test(Opts) ->
 
 transactional_migration_test(Opts) ->
     Conn = ?config(conn, Opts),
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "04-last-migration-fail"]),
                      spgsql_tx_fun(Conn),
                      spgsql_query_fun(Conn)

@@ -17,7 +17,7 @@ all() -> [ invalid_location_test
          ].
 
 invalid_location_test(_Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      "\\invalid\location",
                      fun(F) -> F() end,
                      query_fun([], ok)
@@ -29,7 +29,7 @@ invalid_location_test(_Opts) ->
        PreparedCall()).
 
 no_number_filename_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "01-no-number-script-name"]),
                      fun(F) -> F() end,
                      query_fun([], ok)
@@ -41,7 +41,7 @@ no_number_filename_test(Opts) ->
        PreparedCall()).
 
 invalid_format_filename_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "01-invalid-format-script-name"]),
                      fun(F) -> F() end,
                      query_fun([], ok)
@@ -53,7 +53,7 @@ invalid_format_filename_test(Opts) ->
        PreparedCall()).
 
 regular_upgrade_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "02-regular-upgrade"]),
                      fun(F) -> F() end,
                      query_fun([], ok)
@@ -61,7 +61,7 @@ regular_upgrade_test(Opts) ->
     ?assertEqual(ok, PreparedCall()).
 
 rewrite_version_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "03-rewrite-version"]),
                      fun(F) -> F() end,
                      query_fun([{0, "00_very_first_script.sql"}], ok)
@@ -71,7 +71,7 @@ rewrite_version_test(Opts) ->
        PreparedCall()).
 
 faulty_script_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "00-default"]),
                      fun(F) -> F() end,
                      query_fun([], {error, system_fault, "Please check database connectivity"})
@@ -81,7 +81,7 @@ faulty_script_test(Opts) ->
                             }}, PreparedCall()).
 
 start_not_from_zero_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "04-invalid-start-version"]),
                      fun(F) -> F() end,
                      query_fun([], ok)
@@ -91,7 +91,7 @@ start_not_from_zero_test(Opts) ->
        PreparedCall()).
 
 versions_gap_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "04-invalid-start-version"]),
                      fun(F) -> F() end,
                      query_fun([{0, "00_very_first_script.sql"}], ok)
@@ -101,7 +101,7 @@ versions_gap_test(Opts) ->
        PreparedCall()).
 
 negative_version_test(Opts) ->
-    PreparedCall = engine:migrate(
+    PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "05-negative-version"]),
                      fun(F) -> F() end,
                      query_fun([], ok)
