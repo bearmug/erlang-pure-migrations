@@ -56,7 +56,7 @@ incremental_migration_test(Opts) ->
        {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]},
        pgsql:squery(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {ok, [{error, [{severity, 'ERROR'}, _, _, {message, "relation \"fruit\" does not exist"}|_]}]},
+       {ok, [{error, [{severity, 'ERROR'}|_]}]},
        pgsql:squery(Conn, "select count(*) from fruit")),
 
     %% assert step 1 migration
@@ -110,7 +110,7 @@ migration_gap_test(Opts) ->
        {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [["0"]]}]},
        pgsql:squery(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {ok, [{error, [{severity, 'ERROR'}, _, _, {message,"column \"color\" does not exist"}|_]}]},
+       {ok, [{error, [{severity, 'ERROR'}|_]}]},
        pgsql:squery(Conn, "select count(*) from fruit where color = 'yellow'")).
 
 transactional_migration_test(Opts) ->
@@ -121,13 +121,13 @@ transactional_migration_test(Opts) ->
                      p1pgsql_query_fun(Conn)
                     ),
     ?assertMatch(
-       {rollback, {badmatch, {error, [_, _, _, {message, "syntax error at or near \"GARBAGE\""}|_]}}},
+       {rollback, {badmatch, {error, [{severity,'ERROR'}|_]}}},
        PreparedCall()),
     ?assertMatch(
        {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]},
        pgsql:squery(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {ok, [{error, [_, _, _, {message, "relation \"fruit\" does not exist"}|_]}]},
+       {ok, [{error, [{severity,'ERROR'}|_]}]},
        pgsql:squery(Conn, "select count(*) from fruit")).
 
 p1pgsql_query_fun(Conn) ->
