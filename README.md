@@ -12,9 +12,16 @@ As an extra - do this in "no side-effects" mode.
 - [Current limitations](#current-limitations)
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
-  * [Live code samples](#live-code-samples)
-    + [Postgres and epgsql/epgsql sample](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql--sample)
-    + [Postgres and semiocast/pgsql sample](#postgres-and--semiocast-pgsql--https---githubcom-semiocast-pgsql--sample)
+  * [Live integrations](#live-integrations)
+    + [Postgres and epgsql/epgsql](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
+      - [Onboarding comments](#onboarding-comments)
+      - [Code sample](#code-sample)
+    + [Postgres and semiocast/pgsql](#postgres-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
+      - [Onboarding comments](#onboarding-comments-1)
+      - [Code sample](#code-sample-1)
+    + [Postgres and processone/p1_pgsql](#postgres-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
+      - [Onboarding comments](#onboarding-comments-2)
+      - [Code sample](#code-sample-2)
 - [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
   * [Tool #1: effects externalization](#tool--1--effects-externalization)
   * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
@@ -37,15 +44,27 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
  * `FTx` transaction handler
  * `FQuery` database queries execution handler
 
+Please see verified integrations and live code snippets below.
+
 ## Compatibility table
+All integrations validated against Postgres 9.4/9.6
+
 | Database dialect | Library | Example |
 | -------------- | ------ | ------- |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
 | postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
-| postgres  | any library with basic postgres functional | [generic test](test/pure_migrations_SUITE.erl)
+| postgres  | [processone/p1_pgsql:1.1.6](https://github.com/processone/p1_pgsql/releases/tag/1.1.6) | [p1pgsql test](test/p1pgsql_migrations_SUITE.erl)
+| any  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
-## Live code samples
-### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
+## Live integrations
+### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql)
+#### Onboarding comments
++ most popular out of onboarded postgres integrations
++ transactions with proper stack trace available out of the box
++ reasonably structured query responses, provided with data and its schema
+- although binary strings could be very reasonable, sometimes code too
+  verbose because of this
+#### Code sample
 <details>
   <summary>Click to expand</summary>
 
@@ -71,7 +90,7 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
         end
       end),
   ...
-  %% more preparation steps
+  %% more preparation steps if needed
   ...
   %% migration call
   ok = MigrationCall(),
@@ -81,7 +100,13 @@ Also see examples from live epgsql integration tests
 [here](test/epgsql_migrations_SUITE.erl)
 </details>
 
-### Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql) sample
+### Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql)
+#### Onboarding comments
++ no need for extra parsing (strings, numbers, ...)
+- queries results structure has no metadata, like column types or names,
+  which could be sub-optimal sometimes
+- no transactions out of the box
+#### Code sample
 <details>
   <summary>Click to expand</summary>
 
@@ -116,7 +141,7 @@ Also see examples from live epgsql integration tests
         end
       end),
   ...
-  %% more preparation steps
+  %% more preparation steps if needed
   ...
   %% migration call
   ok = MigrationCall(),
@@ -124,6 +149,58 @@ Also see examples from live epgsql integration tests
   ```
 Also see examples from live semiocast/pgsql integration tests
 [here](test/spgsql_migrations_SUITE.erl)
+</details>
+
+### Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)
+#### Onboarding comments
++ least popular lib,but at the same time - most succinct in terms of
+  integration code (see below)
++ decent types balance gives opportunity to keep code clean
+- no transactions out of the box
+- error reporting different for postgres 9.4/9.6
+#### Code sample
+<details>
+  <summary>Click to expand</summary>
+
+  ```erlang
+  Conn = ?config(conn, Opts),
+  MigrationCall =
+    pure_migrations:migrate(
+      "scripts/folder/path",
+      fun(F) ->
+        pgsql:squery(Conn, "BEGIN"),
+        try F() of
+          Res ->
+            pgsql:squery(Conn, "COMMIT"),
+            Res
+        catch
+           _:Problem ->
+             pgsql:squery(Conn, "ROLLBACK"),
+             {rollback, Problem}
+        end
+      end,
+      fun(Q) ->
+        case pgsql:squery(Conn, Q) of
+          {ok, [{error, Details}]} -> {error, Details};
+          {ok, [{_, [
+                     {"version", text, _, _, _, _, _},
+                     {"filename", text, _, _, _, _, _}], Data}]} ->
+              [{list_to_integer(V), F} || [V, F] <- Data];
+          {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]} -> -1;
+          {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[N]]}]} ->
+              list_to_integer(N);
+          {ok, _} -> ok
+        end
+      end),
+  ...
+  %% more preparation steps if needed
+  ...
+  %% migration call
+  ok = MigrationCall(),
+
+  ```
+Also see examples from live epgsql integration tests
+[here](test/p1pgsql_migrations_SUITE.erl)
 </details>
 
 # No-effects approach and tools used to achieve it
