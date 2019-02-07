@@ -38,7 +38,7 @@ postgres-up:
 	-e POSTGRES_PASSWORD=migration \
 	-e POSTGRES_USER=migration \
 	-e POSTGRES_DB=migration \
-	-d postgres:10.3-alpine
+	-d postgres:9.6-alpine
 
 postgres-down:
 	-$(DOCKER) rm -f $(CONTAINER_NAME)
