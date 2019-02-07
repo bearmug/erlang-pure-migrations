@@ -43,6 +43,7 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
  * `Path` to migration scripts folder (strictly and incrementally enumerated).
  * `FTx` transaction handler
  * `FQuery` database queries execution handler
+
 Please see verified integrations and live code snippets below.
 
 ## Compatibility table
