@@ -6,7 +6,7 @@ services:
   - postgresql
 
 addons:
-  postgresql: "10.4"
+  postgresql: "10.3"
 
 before_script:
   - psql -c "CREATE DATABASE migration;" -U postgres

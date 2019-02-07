@@ -47,7 +47,7 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 Please see verified integrations and live code snippets below.
 
 ## Compatibility table
-All integrations validated against Postgres 9.4/9.6/10.4
+All integrations validated against Postgres 9.4/9.6/10.3
 | Database dialect | Library | Example |
 | -------------- | ------ | ------- |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
