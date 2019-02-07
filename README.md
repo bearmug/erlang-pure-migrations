@@ -42,11 +42,17 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 | -------------- | ------ | ------- |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
 | postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
-| postgres  | [processone/p1_pgsql:1.1.6](https://github.com/processone/p1_pgsql/releases/tag/1.1.6) | [spgsql test](test/p1pgsql_migrations_SUITE.erl)
+| postgres  | [processone/p1_pgsql:1.1.6](https://github.com/processone/p1_pgsql/releases/tag/1.1.6) | [p1pgsql test](test/p1pgsql_migrations_SUITE.erl)
 | any  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
-## Live code samples
-### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
+## Live integrations
+### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql)
+#### Onboarding comments for **epgsql/epgsql**
++ most popular out of onboarded postgres integrations
++ transactions with proper stack trace available out of the box
++ reasonably structured query responses, provided with data and its schema
+- although binary strings could be very reasonable, sometimes code too verbose because of this
+#### Code sample
 <details>
   <summary>Click to expand</summary>
 
@@ -72,7 +78,7 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
         end
       end),
   ...
-  %% more preparation steps
+  %% more preparation steps if needed
   ...
   %% migration call
   ok = MigrationCall(),
@@ -82,7 +88,13 @@ Also see examples from live epgsql integration tests
 [here](test/epgsql_migrations_SUITE.erl)
 </details>
 
-### Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql) sample
+### Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql)
+#### Onboarding comments for **semiocast/pgsql**
++ no need for extra parsing (strings, numbers, ...)
+- queries results structure has no metadata, like column types or names,
+  which could be sub-optimal sometimes
+- no transactions out of the box
+#### Code sample
 <details>
   <summary>Click to expand</summary>
 
@@ -117,7 +129,7 @@ Also see examples from live epgsql integration tests
         end
       end),
   ...
-  %% more preparation steps
+  %% more preparation steps if needed
   ...
   %% migration call
   ok = MigrationCall(),
@@ -127,7 +139,13 @@ Also see examples from live semiocast/pgsql integration tests
 [here](test/spgsql_migrations_SUITE.erl)
 </details>
 
-### Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql) sample
+### Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)
+#### Onboarding comments for **processone/p1_pgsql**
++ least popular lib,but at the same time - most succinct in terms of
+  integration code (see below)
++ decent types balance gives opportunity to keep code clean
+- no transactions out of the box
+#### Code sample
 <details>
   <summary>Click to expand</summary>
 
@@ -162,7 +180,7 @@ Also see examples from live semiocast/pgsql integration tests
         end
       end),
   ...
-  %% more preparation steps
+  %% more preparation steps if needed
   ...
   %% migration call
   ok = MigrationCall(),
