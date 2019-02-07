@@ -13,14 +13,14 @@ As an extra - do this in "no side-effects" mode.
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
   * [Live integrations](#live-integrations)
-    + [Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql)](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
-      - [Onboarding comments for **epgsql/epgsql**](#onboarding-comments-for---epgsql-epgsql--)
+    + [Postgres and epgsql/epgsql](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
+      - [Onboarding comments](#onboarding-comments)
       - [Code sample](#code-sample)
-    + [Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql)](#postgres-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
-      - [Onboarding comments for **semiocast/pgsql**](#onboarding-comments-for---semiocast-pgsql--)
+    + [Postgres and semiocast/pgsql](#postgres-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
+      - [Onboarding comments](#onboarding-comments-1)
       - [Code sample](#code-sample-1)
-    + [Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)](#postgres-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
-      - [Onboarding comments for **processone/p1_pgsql**](#onboarding-comments-for---processone-p1-pgsql--)
+    + [Postgres and processone/p1_pgsql](#postgres-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
+      - [Onboarding comments](#onboarding-comments-2)
       - [Code sample](#code-sample-2)
 - [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
   * [Tool #1: effects externalization](#tool--1--effects-externalization)
@@ -54,7 +54,7 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 
 ## Live integrations
 ### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql)
-#### Onboarding comments for **epgsql/epgsql**
+#### Onboarding comments
 + most popular out of onboarded postgres integrations
 + transactions with proper stack trace available out of the box
 + reasonably structured query responses, provided with data and its schema
@@ -97,7 +97,7 @@ Also see examples from live epgsql integration tests
 </details>
 
 ### Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql)
-#### Onboarding comments for **semiocast/pgsql**
+#### Onboarding comments
 + no need for extra parsing (strings, numbers, ...)
 - queries results structure has no metadata, like column types or names,
   which could be sub-optimal sometimes
@@ -148,7 +148,7 @@ Also see examples from live semiocast/pgsql integration tests
 </details>
 
 ### Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)
-#### Onboarding comments for **processone/p1_pgsql**
+#### Onboarding comments
 + least popular lib,but at the same time - most succinct in terms of
   integration code (see below)
 + decent types balance gives opportunity to keep code clean
