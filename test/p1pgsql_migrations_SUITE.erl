@@ -10,7 +10,7 @@ all() -> [ migrate_one_script_test
          , incremental_migration_test
          , wrong_initial_version_test
          , migration_gap_test
-                    , transactional_migration_test
+         , transactional_migration_test
          ].
 
 migrate_one_script_test(Opts) ->
@@ -121,19 +121,20 @@ transactional_migration_test(Opts) ->
                      p1pgsql_query_fun(Conn)
                     ),
     ?assertMatch(
-       {rollback, {badmatch, {error, {error, error, _, syntax_error, _, _}}}},
+       {rollback, {badmatch, {error, [_, _, _, {message, "syntax error at or near \"GARBAGE\""}|_]}}},
        PreparedCall()),
     ?assertMatch(
-       {ok, _, [{null}]},
+       {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]},
        pgsql:squery(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {error, {error, _, _, undefined_table, <<"relation \"fruit\" does not exist">>, _}},
+       {ok, [{error, [_, _, _, {message, "relation \"fruit\" does not exist"}|_]}]},
        pgsql:squery(Conn, "select count(*) from fruit")).
 
 p1pgsql_query_fun(Conn) ->
     fun(Q) ->
             Res = pgsql:squery(Conn, Q),
             FinalRes = case Res of
+                           {ok, [{error, Details}]} -> {error, Details};
                            {ok, [{_, [
                                       {"version", text, _, _, _, _, _},
                                       {"filename", text, _, _, _, _, _}], Data}]} ->
