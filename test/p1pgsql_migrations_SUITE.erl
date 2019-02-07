@@ -142,7 +142,6 @@ p1pgsql_query_fun(Conn) ->
                            {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]} -> -1;
                            {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[N]]}]} ->
                                list_to_integer(N);
-                           [{ok, _, _}, {ok, _}] -> ok;
                            {ok, _, _} -> ok;
                            {ok, _} -> ok;
                            Default -> Default
