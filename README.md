@@ -42,7 +42,8 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 | -------------- | ------ | ------- |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
 | postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
-| postgres  | any library with basic postgres functional | [generic test](test/pure_migrations_SUITE.erl)
+| postgres  | [processone/p1_pgsql:1.1.6](https://github.com/processone/p1_pgsql/releases/tag/1.1.6) | [spgsql test](test/p1pgsql_migrations_SUITE.erl)
+| any  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
 ## Live code samples
 ### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql) sample
@@ -124,6 +125,51 @@ Also see examples from live epgsql integration tests
   ```
 Also see examples from live semiocast/pgsql integration tests
 [here](test/spgsql_migrations_SUITE.erl)
+</details>
+
+### Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql) sample
+<details>
+  <summary>Click to expand</summary>
+
+  ```erlang
+  Conn = ?config(conn, Opts),
+  MigrationCall =
+    pure_migrations:migrate(
+      "scripts/folder/path",
+      fun(F) ->
+        pgsql:squery(Conn, "BEGIN"),
+        try F() of
+          Res ->
+            pgsql:squery(Conn, "COMMIT"),
+            Res
+        catch
+           _:Problem ->
+             pgsql:squery(Conn, "ROLLBACK"),
+             {rollback, Problem}
+        end
+      end,
+      fun(Q) ->
+        case pgsql:squery(Conn, Q) of
+          {ok, [{error, Details}]} -> {error, Details};
+          {ok, [{_, [
+                     {"version", text, _, _, _, _, _},
+                     {"filename", text, _, _, _, _, _}], Data}]} ->
+              [{list_to_integer(V), F} || [V, F] <- Data];
+          {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]} -> -1;
+          {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[N]]}]} ->
+              list_to_integer(N);
+          {ok, _} -> ok
+        end
+      end),
+  ...
+  %% more preparation steps
+  ...
+  %% migration call
+  ok = MigrationCall(),
+
+  ```
+Also see examples from live epgsql integration tests
+[here](test/p1pgsql_migrations_SUITE.erl)
 </details>
 
 # No-effects approach and tools used to achieve it
