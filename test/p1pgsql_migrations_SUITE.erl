@@ -132,22 +132,18 @@ transactional_migration_test(Opts) ->
 
 p1pgsql_query_fun(Conn) ->
     fun(Q) ->
-            Res = pgsql:squery(Conn, Q),
-            FinalRes = case Res of
-                           {ok, [{error, Details}]} -> {error, Details};
-                           {ok, [{_, [
-                                      {"version", text, _, _, _, _, _},
-                                      {"filename", text, _, _, _, _, _}], Data}]} ->
-                               [{list_to_integer(V), F} || [V, F] <- Data];
-                           {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]} -> -1;
-                           {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[N]]}]} ->
-                               list_to_integer(N);
-                           {ok, _, _} -> ok;
-                           {ok, _} -> ok;
-                           Default -> Default
-                       end,
-            io:format("p1pgsql_query_fun query=~p res=~p final=~p~n", [Q, Res, FinalRes]),
-            FinalRes
+            case pgsql:squery(Conn, Q) of
+                {ok, [{error, Details}]} -> {error, Details};
+                {ok, [{_, [
+                           {"version", text, _, _, _, _, _},
+                           {"filename", text, _, _, _, _, _}], Data}]} ->
+                    [{list_to_integer(V), F} || [V, F] <- Data];
+                {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[null]]}]} -> -1;
+                {ok, [{"SELECT 1", [{"max", text, _, _, _, _, _}], [[N]]}]} ->
+                    list_to_integer(N);
+                {ok, _} -> ok;
+                Default -> Default
+            end
     end.
 
 p1pgsql_tx_fun(Conn) ->
