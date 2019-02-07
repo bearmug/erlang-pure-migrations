@@ -12,9 +12,16 @@ As an extra - do this in "no side-effects" mode.
 - [Current limitations](#current-limitations)
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
-  * [Live code samples](#live-code-samples)
-    + [Postgres and epgsql/epgsql sample](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql--sample)
-    + [Postgres and semiocast/pgsql sample](#postgres-and--semiocast-pgsql--https---githubcom-semiocast-pgsql--sample)
+  * [Live integrations](#live-integrations)
+    + [Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql)](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
+      - [Onboarding comments for **epgsql/epgsql**](#onboarding-comments-for---epgsql-epgsql--)
+      - [Code sample](#code-sample)
+    + [Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql)](#postgres-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
+      - [Onboarding comments for **semiocast/pgsql**](#onboarding-comments-for---semiocast-pgsql--)
+      - [Code sample](#code-sample-1)
+    + [Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)](#postgres-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
+      - [Onboarding comments for **processone/p1_pgsql**](#onboarding-comments-for---processone-p1-pgsql--)
+      - [Code sample](#code-sample-2)
 - [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
   * [Tool #1: effects externalization](#tool--1--effects-externalization)
   * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
@@ -51,7 +58,8 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 + most popular out of onboarded postgres integrations
 + transactions with proper stack trace available out of the box
 + reasonably structured query responses, provided with data and its schema
-- although binary strings could be very reasonable, sometimes code too verbose because of this
+- although binary strings could be very reasonable, sometimes code too
+  verbose because of this
 #### Code sample
 <details>
   <summary>Click to expand</summary>
