@@ -7,9 +7,9 @@
 
 all() -> [ migrate_one_script_test
                     , migrate_few_scripts_test
-           %%         , incremental_migration_test
-           %%         , wrong_initial_version_test
-           %%         , migration_gap_test
+                    , incremental_migration_test
+                    , wrong_initial_version_test
+                    , migration_gap_test
            %%         , transactional_migration_test
          ].
 
