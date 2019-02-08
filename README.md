@@ -7,7 +7,7 @@ Migrate your Erlang application PostgreSQL database with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
 purpose - consistently upgrade database schema, using Erlang stack and
 plain SQL. Feel free to run it with any PostgreSQL Erlang driver (and see
-several ready-to-use samples below). As an extra - do this in
+several ready-to-use examples below). As an extra - do this in
 "no side-effects" mode.
 
 # Table of content
@@ -49,7 +49,7 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 Migration logic is idempotent and could be executed multiple times
 against the same database with the same migration scripts set. Moreover,
 it is safe to migrate your database concurrently (as a part of nodes
-startup in scalable environments for example). Please see verified
+startup in scalable environments, for example). Please see verified
 integrations and live code snippets below.
 
 ## Compatibility table
