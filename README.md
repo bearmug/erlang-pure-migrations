@@ -46,7 +46,11 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
  * `FTx` transaction handler
  * `FQuery` database queries execution handler
 
-Please see verified integrations and live code snippets below.
+Migration logic is idempotent and could be executed multiple times
+against the same database with the same migration scripts set. Moreover,
+it is safe to migrate your database concurrently (as a part of nodes
+startup in scalable environments for example). Please see verified
+integrations and live code snippets below.
 
 ## Compatibility table
 All integrations validated against PostgreSQL 9.4/9.6
