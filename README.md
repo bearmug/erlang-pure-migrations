@@ -1,25 +1,27 @@
 # Erlang ❤ pure database migrations
-> Database migrations engine. Effects-free.
+> Database version control engine. Effects-free.
 
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations) [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 
-Migrate your Erlang application database with no effort.
+Migrate your Erlang application PostgreSQL database with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
-purpose - consistently upgrade database schema, using Erlang stack.
-As an extra - do this in "no side-effects" mode.
+purpose - consistently upgrade database schema, using Erlang stack and
+plain SQL. Feel free to run it with any PostgreSQL Erlang driver (and see
+several ready-to-use examples below). As an extra - do this in
+"no side-effects" mode.
 
 # Table of content
 - [Current limitations](#current-limitations)
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
   * [Live integrations](#live-integrations)
-    + [Postgres and epgsql/epgsql](#postgres-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
+    + [PostgreSQL and epgsql/epgsql](#postgresql-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
       - [Onboarding comments](#onboarding-comments)
       - [Code sample](#code-sample)
-    + [Postgres and semiocast/pgsql](#postgres-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
+    + [PostgreSQL and semiocast/pgsql](#postgresql-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
       - [Onboarding comments](#onboarding-comments-1)
       - [Code sample](#code-sample-1)
-    + [Postgres and processone/p1_pgsql](#postgres-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
+    + [PostgreSQL and processone/p1_pgsql](#postgresql-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
       - [Onboarding comments](#onboarding-comments-2)
       - [Code sample](#code-sample-2)
 - [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
@@ -44,20 +46,24 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
  * `FTx` transaction handler
  * `FQuery` database queries execution handler
 
-Please see verified integrations and live code snippets below.
+Migration logic is idempotent and could be executed multiple times
+against the same database with the same migration scripts set. Moreover,
+it is safe to migrate your database concurrently (as a part of nodes
+startup in scalable environments, for example). Please see verified
+integrations and live code snippets below.
 
 ## Compatibility table
-All integrations validated against Postgres 9.4/9.6
+All integrations validated against PostgreSQL 9.4/9.6
 
 | Database dialect | Library | Example |
 | -------------- | ------ | ------- |
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
 | postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
 | postgres  | [processone/p1_pgsql:1.1.6](https://github.com/processone/p1_pgsql/releases/tag/1.1.6) | [p1pgsql test](test/p1pgsql_migrations_SUITE.erl)
-| any  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
+| postgres  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
 ## Live integrations
-### Postgres and [epgsql/epgsql](https://github.com/epgsql/epgsql)
+### PostgreSQL and [epgsql/epgsql](https://github.com/epgsql/epgsql)
 #### Onboarding comments
 + most popular out of onboarded postgres integrations
 + transactions with proper stack trace available out of the box
@@ -100,7 +106,7 @@ Also see examples from live epgsql integration tests
 [here](test/epgsql_migrations_SUITE.erl)
 </details>
 
-### Postgres and [semiocast/pgsql](https://github.com/semiocast/pgsql)
+### PostgreSQL and [semiocast/pgsql](https://github.com/semiocast/pgsql)
 #### Onboarding comments
 + no need for extra parsing (strings, numbers, ...)
 - queries results structure has no metadata, like column types or names,
@@ -151,7 +157,7 @@ Also see examples from live semiocast/pgsql integration tests
 [here](test/spgsql_migrations_SUITE.erl)
 </details>
 
-### Postgres and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)
+### PostgreSQL and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)
 #### Onboarding comments
 + least popular lib,but at the same time - most succinct in terms of
   integration code (see below)
