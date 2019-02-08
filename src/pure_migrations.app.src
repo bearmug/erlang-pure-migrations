@@ -2,6 +2,7 @@
  [{description, "Database Pure Migration Tool"},
   {vsn, "1.2.0"},
   {licenses, ["MIT"]},
+  {links, [{"GitHub", "https://github.com/bearmug/erlang-pure-migrations"}]},
   {registered, []},
   {modules, []},
   {applications, [
