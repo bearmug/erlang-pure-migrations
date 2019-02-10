@@ -16,8 +16,8 @@ addons:
       - mysql-client
 
 before_script:
-  - psql -c "CREATE DATABASE migration;" -U postgres
-  - psql -c "CREATE USER migration WITH PASSWORD 'migration';" -U postgres
+  - psql -c "CREATE DATABASE puremigration;" -U postgres
+  - psql -c "CREATE USER puremigration WITH PASSWORD 'puremigration';" -U postgres
 
 language: erlang
 

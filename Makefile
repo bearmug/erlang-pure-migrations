@@ -36,9 +36,9 @@ format:
 postgres-up:
 	$(DOCKER) run --name $(CONTAINER_POSTGRES) \
 	-p 5432:5432 \
-	-e POSTGRES_PASSWORD=migration \
-	-e POSTGRES_USER=migration \
-	-e POSTGRES_DB=migration \
+	-e POSTGRES_PASSWORD=puremigration \
+	-e POSTGRES_USER=puremigration \
+	-e POSTGRES_DB=puremigration \
 	-d postgres:9.6-alpine
 
 postgres-down:
