@@ -20,6 +20,7 @@ before_script:
   - psql -c "CREATE USER puremigration WITH PASSWORD 'puremigration';" -U postgres
 
 before_install:
+  - sudo mysql_upgrade --force
   - mysql -e "CREATE DATABASE puremigration;"
   - mysql -e "CREATE USER 'puremigration@localhost' IDENTIFIED BY 'puremigration'";
   - mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP ON puremigration.* TO 'puremigration@localhost';"
