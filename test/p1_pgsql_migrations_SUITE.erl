@@ -1,4 +1,4 @@
--module(p1pgsql_migrations_SUITE).
+-module(p1_pgsql_migrations_SUITE).
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
