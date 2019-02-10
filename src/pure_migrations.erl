@@ -14,7 +14,7 @@
       F :: fun(() -> ok | error()),
       R :: fun(() -> ok | error()).
 migrate(Path, FTx, FQuery) ->
-    ok = FQuery(dialect_postgres:init()),
+    ok = FQuery(db_dialect:init()),
     fun() ->
             FTx(flatten(map(
                           find_migrations(Path, FQuery),
@@ -26,11 +26,11 @@ do_migration(Path, FQuery, {V, F}) ->
     compose(
       fun() -> file:read_file(ScriptPath) end,
       fun({ok, ScriptBody}) ->
-              ExpectedVersion = FQuery(dialect_postgres:latest_existing_version()) + 1,
+              ExpectedVersion = FQuery(db_dialect:latest_existing_version()) + 1,
               case V of
                   ExpectedVersion ->
                       ok = FQuery(ScriptBody),
-                      ok = FQuery(dialect_postgres:save_migration(V, F));
+                      ok = FQuery(db_dialect:save_migration(V, F));
                   _ -> {
                         error,
                         unexpected_version,
@@ -45,7 +45,7 @@ find_migrations(ScriptsLocation, FQuery) ->
       fun(Files) -> filter_script_files(Files, ScriptsLocation, FQuery) end).
 
 filter_script_files({ok, Files}, _Folder, FQuery) ->
-    MigrationsDone = sets:from_list(FQuery(dialect_postgres:migrations_done())),
+    MigrationsDone = sets:from_list(FQuery(db_dialect:migrations_done())),
     lists:filter(
       fun(N) -> not sets:is_element(N, MigrationsDone) end,
       lists:keysort(1, [version_and_filename(F) || F <- Files]));

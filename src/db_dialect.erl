@@ -1,6 +1,10 @@
--module(dialect_postgres).
+-module(db_dialect).
 
--export([init/0, migrations_done/0, save_migration/2, latest_existing_version/0]).
+-export([ init/0
+        , migrations_done/0
+        , save_migration/2
+        , latest_existing_version/0
+        ]).
 
 init() ->
     "CREATE TABLE IF NOT EXISTS database_migrations_history (
