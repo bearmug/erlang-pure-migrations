@@ -4,9 +4,16 @@ cache:
 
 services:
   - postgresql
+  - mysql
 
 addons:
   postgresql: "9.6"
+  apt:
+    sources:
+      - mysql-5.7-trusty
+    packages:
+      - mysql-server
+      - mysql-client
 
 before_script:
   - psql -c "CREATE DATABASE migration;" -U postgres
