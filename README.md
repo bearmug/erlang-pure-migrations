@@ -62,6 +62,7 @@ All integrations validated against PostgreSQL 9.4/9.6
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
 | postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
 | postgres  | [processone/p1_pgsql:1.1.6](https://github.com/processone/p1_pgsql/releases/tag/1.1.6) | [p1pgsql test](test/p1pgsql_migrations_SUITE.erl)
+| mysql     | [mysql-otp/mysql-otp:1.4.0](https://github.com/mysql-otp/mysql-otp/releases/tag/1.4.0) | [otp_mysql test](test/otp_mysql_migrations_SUITE.erl)
 | postgres  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
 ## Live integrations
