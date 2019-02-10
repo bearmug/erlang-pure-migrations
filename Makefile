@@ -47,15 +47,21 @@ postgres-down:
 mysql-up:
 	$(DOCKER) run --name $(CONTAINER_MYSQL) \
 	-p 3306:3306 \
-	-e MYSQL_ROOT_PASSWORD=puremigration \
+	-e MYSQL_ALLOW_EMPTY_PASSWORD=true \
 	-e MYSQL_USER=puremigration \
 	-e MYSQL_PASSWORD=puremigration \
 	-e MYSQL_DATABASE=puremigration \
 	-d mysql:5.7
 
+mysql-wait:
+	while ! docker exec -it mysql-migration-test-container mysqladmin ping --silent; do \
+        echo "mysql image starting, wait for 1 second..."; \
+        sleep 1; \
+    done; done
+
 mysql-down:
 	-$(DOCKER) rm -f $(CONTAINER_MYSQL)
 
-db-bounce: postgres-down mysql-down postgres-up mysql-up
+db-bounce: postgres-down mysql-down postgres-up mysql-up mysql-wait
 
 db-down: postgres-down mysql-down
