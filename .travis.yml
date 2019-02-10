@@ -22,8 +22,8 @@ before_script:
 before_install:
   - sudo mysql_upgrade --force
   - mysql -e "CREATE DATABASE puremigration;"
-  - mysql -e "CREATE USER 'puremigration@localhost' IDENTIFIED BY 'puremigration'";
-  - mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP ON puremigration.* TO 'puremigration@localhost';"
+  - mysql -e "CREATE USER 'puremigration'@'localhost' IDENTIFIED BY 'puremigration'";
+  - mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP ON puremigration.* TO 'puremigration'@'localhost';"
 
 language: erlang
 
