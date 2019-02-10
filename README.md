@@ -1,14 +1,14 @@
 # Erlang ❤ pure database migrations
-> Database version control engine. Effects-free.
+> PostgreSQL / MySQL version control engine. Effects-free.
 
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations)
 [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/pure_migrations.svg)](https://hex.pm/packages/pure_migrations)
 
-Migrate your Erlang application PostgreSQL database with no effort.
+Migrate your Erlang application PostgreSQL or MySQL database with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
 purpose - consistently upgrade database schema, using Erlang stack and
-plain SQL. Feel free to run it with any PostgreSQL Erlang driver (and see
+plain SQL. Feel free to run it with any PostgreSQL/MySQL Erlang driver (and see
 several ready-to-use examples below). As an extra - do this in
 "no side-effects" mode.
 
@@ -210,6 +210,45 @@ Also see examples from live semiocast/pgsql integration tests
   ```
 Also see examples from live epgsql integration tests
 [here](test/p1pgsql_migrations_SUITE.erl)
+</details>
+
+### MySQL and [mysql-otp/mysql-otp](https://github.com/mysql-otp/mysql-otp)
+#### Onboarding comments
++ 
+#### Code sample
+<details>
+  <summary>Click to expand</summary>
+
+  ```erlang
+  Conn = ?config(conn, Opts),
+  MigrationCall =
+    pure_migrations:migrate(
+      "scripts/folder/path",
+      fun(F) -> F end,
+      fun(Q) ->
+        case mysql:query(Conn, Q) of
+          {ok, [
+            {column, <<"version">>, _, _, _, _, _},
+            {column, <<"filename">>, _, _, _, _, _}], Data} ->
+              [{list_to_integer(binary_to_list(BinV)), binary_to_list(BinF)} || {BinV, BinF} <- Data];
+          {ok, [{column, <<"max">>, _, _, _, _, _}], [{null}]} -> -1;
+          {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} ->
+            list_to_integer(binary_to_list(N));
+          [{ok, _, _}, {ok, _}] -> ok;
+          {ok, _, _} -> ok;
+          {ok, _} -> ok;
+          Default -> Default
+        end
+      end),
+  ...
+  %% more preparation steps if needed
+  ...
+  %% migration call
+  ok = MigrationCall(),
+
+  ```
+Also see examples from live epgsql integration tests
+[here](test/otp_mysql_migrations_SUITE.erl)
 </details>
 
 # No-effects approach and tools used to achieve it
