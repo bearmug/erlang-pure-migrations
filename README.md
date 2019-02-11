@@ -1,5 +1,5 @@
 # Erlang ❤ pure database migrations
-> PostgreSQL and MySQL version control engine. Effects-free.
+> PostgreSQL | MySQL version control engine. Effects-free.
 
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations)
 [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
@@ -44,8 +44,8 @@ several ready-to-use examples below). As an extra - do this in
  * Validated MySQL implementation obviously featured with 
     [**implicit commit**](https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html)
     behavior, which means that truly transactional MySQL upgrades limited 
-    in scope. At the same time you free to use another MySQL library or
-    have your own transaction callback, as it is proposed by [API](#quick-start).
+    in scope. At the same time you may adjust MySQL transaction callback, 
+    as it is proposed by [API](#quick-start).
  * migrations engine **deliberately isolated from any specific
     database library**. This way engine user is free to choose from variety
     of frameworks (see tested combinations [here](#compatibility-table)) 
@@ -239,7 +239,7 @@ Also see examples from live epgsql integration tests
       "scripts/folder/path",
       fun(F) ->
         %% no full-scope tx API available here
-        %% or use mysql:transaction/2, but please be aware about
+        %% alternatively use mysql:transaction/2, but please be aware about
         %% mysql implicit transactions commit behavior
         try F() of
           Res -> Res
