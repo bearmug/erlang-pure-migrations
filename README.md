@@ -5,7 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/pure_migrations.svg)](https://hex.pm/packages/pure_migrations)
 
-Migrate your Erlang application PostgreSQL or MySQL database with no effort.
+Migrate your PostgreSQL or MySQL database from Erlang code with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
 purpose - consistently upgrade database schema, using Erlang stack and
 plain SQL. Feel free to run it with any PostgreSQL/MySQL Erlang driver (and see
@@ -13,34 +13,21 @@ several ready-to-use examples below). As an extra - do this in
 "no side-effects" mode.
 
 # Table of content
-- [Current limitations](#current-limitations)
-- [Quick start](#quick-start)
-  * [Compatibility table](#compatibility-table)
-  * [Live integrations](#live-integrations)
-    + [PostgreSQL and epgsql/epgsql](#postgresql-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
-      - [Onboarding comments](#onboarding-comments)
-      - [Code sample](#code-sample)
-    + [PostgreSQL and semiocast/pgsql](#postgresql-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
-      - [Onboarding comments](#onboarding-comments-1)
-      - [Code sample](#code-sample-1)
-    + [PostgreSQL and processone/p1_pgsql](#postgresql-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
-      - [Onboarding comments](#onboarding-comments-2)
-      - [Code sample](#code-sample-2)
-- [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
-  * [Tool #1: effects externalization](#tool--1--effects-externalization)
-  * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
-- [Functional programming abstractions used](#functional-programming-abstractions-used)
-  * [Functions composition](#functions-composition)
-  * [Functor applications](#functor-applications)
-  * [Partial function applications](#partial-function-applications)
+
 
 # Current limitations
  * **up** transactional migration available only. No **downgrade**
- or **rollback** possible. Either whole **up** migration completes OK
- or failed and rolled back to the state before migration.
+    calls available. Either whole **up** migration completes OK
+    or failed and rolled back to the state before migration.
+ * Validated MySQL implementation obviously featured with 
+    [**implicit commit**](https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html)
+    behavior, which means that truly transactional MySQL upgrades limited 
+    in scope. At the same time you free to use another MySQL library or
+    have your own transaction callback, as it is proposed by [API](#quick-start).
  * migrations engine **deliberately isolated from any specific
- database library**. This way engine user is free to choose from variety
- of frameworks (see tested combinations [here](#compatibility-table)) and so on.
+    database library**. This way engine user is free to choose from variety
+    of frameworks (see tested combinations [here](#compatibility-table)) 
+    and so on.
 
 # Quick start
 Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L9)), providing:
@@ -51,8 +38,8 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 Migration logic is idempotent and could be executed multiple times
 against the same database with the same migration scripts set. Moreover,
 it is safe to migrate your database concurrently (as a part of nodes
-startup in scalable environments, for example). Please see verified
-integrations and live code snippets below.
+startup in scalable environments and if you providing proper transaction
+handler). Please see verified integrations and live code snippets below.
 
 ## Compatibility table
 All integrations validated against PostgreSQL 9.4/9.6
@@ -224,20 +211,26 @@ Also see examples from live epgsql integration tests
   MigrationCall =
     pure_migrations:migrate(
       "scripts/folder/path",
-      fun(F) -> F end,
+      fun(F) ->
+        %% no full-scope tx API available here
+        %% or use mysql:transaction/2, but please be aware about
+        %% mysql implicit transactions behavior
+        try F() of
+          Res -> Res
+        catch
+          _:Problem -> {rollback_unavailable, Problem}
+        end
+      end,
       fun(Q) ->
         case mysql:query(Conn, Q) of
-          {ok, [
-            {column, <<"version">>, _, _, _, _, _},
-            {column, <<"filename">>, _, _, _, _, _}], Data} ->
-              [{list_to_integer(binary_to_list(BinV)), binary_to_list(BinF)} || {BinV, BinF} <- Data];
-          {ok, [{column, <<"max">>, _, _, _, _, _}], [{null}]} -> -1;
-          {ok, [{column, <<"max">>, _, _, _, _, _}], [{N}]} ->
-            list_to_integer(binary_to_list(N));
-          [{ok, _, _}, {ok, _}] -> ok;
-          {ok, _, _} -> ok;
+          {error, Details} -> {error, Details};
+          {ok,[<<"version">>,<<"filename">>],[]} -> [];
+          {ok,[<<"version">>,<<"filename">>], Data} ->
+              [{V, binary_to_list(F)} || [V, F] <- Data];
+          {ok,[<<"max(version)">>],[[null]]} -> -1;
+          {ok,[<<"max(version)">>],[[V]]} -> V;
           {ok, _} -> ok;
-          Default -> Default
+          ok -> ok
         end
       end),
   ...
@@ -251,7 +244,7 @@ Also see examples from live epgsql integration tests
 [here](test/otp_mysql_migrations_SUITE.erl)
 </details>
 
-# No-effects approach and tools used to achieve it
+# "No-effects" approach and tools used to achieve it
 Oh, **there is more!** Library implemented in the [way](https://en.wikipedia.org/wiki/Pure_function),
 that all side-effects either externalized or deferred explicitly. Reasons
 are quite common:
