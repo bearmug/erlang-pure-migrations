@@ -21,7 +21,7 @@ code-checks: compile
 	$(REBAR) dialyzer
 	$(REBAR) as lint lint
 
-test: format compile
+test: compile
 	$(REBAR) as test do ct -v
 
 cover:

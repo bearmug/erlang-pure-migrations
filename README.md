@@ -1,5 +1,5 @@
 # Erlang ❤ pure database migrations
-> PostgreSQL / MySQL version control engine. Effects-free.
+> PostgreSQL and MySQL version control engine. Effects-free.
 
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations)
 [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
@@ -201,7 +201,11 @@ Also see examples from live epgsql integration tests
 
 ### MySQL and [mysql-otp/mysql-otp](https://github.com/mysql-otp/mysql-otp)
 #### Onboarding comments
-+ 
++ almost no result-set parsing required
+- [implicit commit](https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html)
+  specifics a kind an obstacle for simple and safe migration
+- mysql docker tooling should be operated carefully and ensured for 
+  proper startup before any use
 #### Code sample
 <details>
   <summary>Click to expand</summary>
@@ -214,7 +218,7 @@ Also see examples from live epgsql integration tests
       fun(F) ->
         %% no full-scope tx API available here
         %% or use mysql:transaction/2, but please be aware about
-        %% mysql implicit transactions behavior
+        %% mysql implicit transactions commit behavior
         try F() of
           Res -> Res
         catch
