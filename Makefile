@@ -1,12 +1,13 @@
 REBAR = ./rebar3
 DOCKER = docker
-CONTAINER_NAME = postgres-migration-test-container
+CONTAINER_POSTGRES = postgres-migration-test-container
+CONTAINER_MYSQL = mysql-migration-test-container
 
 all: clean code-checks test cover
 
 travis: all coveralls
 
-local: format postgres-bounce all postgres-down
+local: format db-bounce all db-down
 
 clean:
 	$(REBAR) clean
@@ -33,14 +34,34 @@ format:
 	$(REBAR) fmt
 
 postgres-up:
-	$(DOCKER) run --name $(CONTAINER_NAME) \
+	$(DOCKER) run --name $(CONTAINER_POSTGRES) \
 	-p 5432:5432 \
-	-e POSTGRES_PASSWORD=migration \
-	-e POSTGRES_USER=migration \
-	-e POSTGRES_DB=migration \
+	-e POSTGRES_PASSWORD=puremigration \
+	-e POSTGRES_USER=puremigration \
+	-e POSTGRES_DB=puremigration \
 	-d postgres:9.6-alpine
 
 postgres-down:
-	-$(DOCKER) rm -f $(CONTAINER_NAME)
+	-$(DOCKER) rm -f $(CONTAINER_POSTGRES)
 
-postgres-bounce: postgres-down postgres-up
+mysql-up:
+	$(DOCKER) run --name $(CONTAINER_MYSQL) \
+	-p 3306:3306 \
+	-e MYSQL_ALLOW_EMPTY_PASSWORD=true \
+	-e MYSQL_USER=puremigration \
+	-e MYSQL_PASSWORD=puremigration \
+	-e MYSQL_DATABASE=puremigration \
+	-d mysql:5.7
+
+mysql-wait:
+	while ! docker exec -it mysql-migration-test-container mysqladmin ping --silent; do \
+        echo "mysql image starting, wait for 1 second..."; \
+        sleep 1; \
+    done; done
+
+mysql-down:
+	-$(DOCKER) rm -f $(CONTAINER_MYSQL)
+
+db-bounce: postgres-down mysql-down postgres-up mysql-up mysql-wait
+
+db-down: postgres-down mysql-down

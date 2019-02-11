@@ -1,14 +1,14 @@
 # Erlang ❤ pure database migrations
-> Database version control engine. Effects-free.
+> PostgreSQL | MySQL version control engine. Effects-free.
 
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations)
 [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/pure_migrations.svg)](https://hex.pm/packages/pure_migrations)
 
-Migrate your Erlang application PostgreSQL database with no effort.
+Migrate your PostgreSQL or MySQL database from Erlang code with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
 purpose - consistently upgrade database schema, using Erlang stack and
-plain SQL. Feel free to run it with any PostgreSQL Erlang driver (and see
+plain SQL. Feel free to run it with any PostgreSQL/MySQL Erlang library (and see
 several ready-to-use examples below). As an extra - do this in
 "no side-effects" mode.
 
@@ -17,16 +17,19 @@ several ready-to-use examples below). As an extra - do this in
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
   * [Live integrations](#live-integrations)
-    + [PostgreSQL and epgsql/epgsql](#postgresql-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
+    + [PostgreSQL and epgsql/epgsql](#postgresql-and-epgsqlepgsql)
       - [Onboarding comments](#onboarding-comments)
       - [Code sample](#code-sample)
-    + [PostgreSQL and semiocast/pgsql](#postgresql-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
+    + [PostgreSQL and semiocast/pgsql](#postgresql-and-semiocastpgsql)
       - [Onboarding comments](#onboarding-comments-1)
       - [Code sample](#code-sample-1)
-    + [PostgreSQL and processone/p1_pgsql](#postgresql-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
+    + [PostgreSQL and processone/p1_pgsql](#postgresql-and-processonep1_pgsql)
       - [Onboarding comments](#onboarding-comments-2)
       - [Code sample](#code-sample-2)
-- [No-effects approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
+    + [MySQL and mysql-otp/mysql-otp](#mysql-and-mysql-otpmysql-otp)
+      - [Onboarding comments](#onboarding-comments-3)
+      - [Code sample](#code-sample-3)
+- ["No-effects" approach and tools used to achieve it](#-no-effects--approach-and-tools-used-to-achieve-it)
   * [Tool #1: effects externalization](#tool--1--effects-externalization)
   * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
 - [Functional programming abstractions used](#functional-programming-abstractions-used)
@@ -36,11 +39,17 @@ several ready-to-use examples below). As an extra - do this in
 
 # Current limitations
  * **up** transactional migration available only. No **downgrade**
- or **rollback** possible. Either whole **up** migration completes OK
- or failed and rolled back to the state before migration.
+    calls available. Either whole **up** migration completes OK
+    or failed and rolled back to the state before migration.
+ * Validated MySQL implementation obviously featured with 
+    [**implicit commit**](https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html)
+    behavior, which means that truly transactional MySQL upgrades limited 
+    in scope. At the same time you may adjust MySQL transaction callback, 
+    as it is proposed by [API](#quick-start).
  * migrations engine **deliberately isolated from any specific
- database library**. This way engine user is free to choose from variety
- of frameworks (see tested combinations [here](#compatibility-table)) and so on.
+    database library**. This way engine user is free to choose from variety
+    of frameworks (see tested combinations [here](#compatibility-table)) 
+    and so on.
 
 # Quick start
 Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L9)), providing:
@@ -51,8 +60,8 @@ Just call `pure_migrations:migrate/3` (see specification [here](src/engine.erl#L
 Migration logic is idempotent and could be executed multiple times
 against the same database with the same migration scripts set. Moreover,
 it is safe to migrate your database concurrently (as a part of nodes
-startup in scalable environments, for example). Please see verified
-integrations and live code snippets below.
+startup in scalable environments and if you providing proper transaction
+handler). Please see verified integrations and live code snippets below.
 
 ## Compatibility table
 All integrations validated against PostgreSQL 9.4/9.6
@@ -62,6 +71,7 @@ All integrations validated against PostgreSQL 9.4/9.6
 | postgres  | [epgsql/epgsql:4.2.1](https://github.com/epgsql/epgsql/releases/tag/4.2.1) | [epgsql test](test/epgsql_migrations_SUITE.erl)
 | postgres  | [semiocast/pgsql:v26.0.2](https://github.com/semiocast/pgsql/releases/tag/v26.0.2) | [spgsql test](test/spgsql_migrations_SUITE.erl)
 | postgres  | [processone/p1_pgsql:1.1.6](https://github.com/processone/p1_pgsql/releases/tag/1.1.6) | [p1pgsql test](test/p1pgsql_migrations_SUITE.erl)
+| mysql     | [mysql-otp/mysql-otp:1.4.0](https://github.com/mysql-otp/mysql-otp/releases/tag/1.4.0) | [otp_mysql test](test/otp_mysql_migrations_SUITE.erl)
 | postgres  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
 ## Live integrations
@@ -211,7 +221,56 @@ Also see examples from live epgsql integration tests
 [here](test/p1pgsql_migrations_SUITE.erl)
 </details>
 
-# No-effects approach and tools used to achieve it
+### MySQL and [mysql-otp/mysql-otp](https://github.com/mysql-otp/mysql-otp)
+#### Onboarding comments
++ almost no result-set parsing required
+- [implicit commit](https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html)
+  specifics a kind an obstacle for simple and safe migration
+- mysql docker tooling should be operated carefully and ensured for 
+  proper startup before any use
+#### Code sample
+<details>
+  <summary>Click to expand</summary>
+
+  ```erlang
+  Conn = ?config(conn, Opts),
+  MigrationCall =
+    pure_migrations:migrate(
+      "scripts/folder/path",
+      fun(F) ->
+        %% no full-scope tx API available here
+        %% alternatively use mysql:transaction/2, but please be aware about
+        %% mysql implicit transactions commit behavior
+        try F() of
+          Res -> Res
+        catch
+          _:Problem -> {rollback_unavailable, Problem}
+        end
+      end,
+      fun(Q) ->
+        case mysql:query(Conn, Q) of
+          {error, Details} -> {error, Details};
+          {ok,[<<"version">>,<<"filename">>],[]} -> [];
+          {ok,[<<"version">>,<<"filename">>], Data} ->
+              [{V, binary_to_list(F)} || [V, F] <- Data];
+          {ok,[<<"max(version)">>],[[null]]} -> -1;
+          {ok,[<<"max(version)">>],[[V]]} -> V;
+          {ok, _} -> ok;
+          ok -> ok
+        end
+      end),
+  ...
+  %% more preparation steps if needed
+  ...
+  %% migration call
+  ok = MigrationCall(),
+
+  ```
+Also see examples from live epgsql integration tests
+[here](test/otp_mysql_migrations_SUITE.erl)
+</details>
+
+# "No-effects" approach and tools used to achieve it
 Oh, **there is more!** Library implemented in the [way](https://en.wikipedia.org/wiki/Pure_function),
 that all side-effects either externalized or deferred explicitly. Reasons
 are quite common:
