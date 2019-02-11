@@ -135,14 +135,14 @@ transactional_migration_unavailable_for_mysql_test(Opts) ->
 otp_mysql_query_fun(Conn) ->
     fun(Q) ->
             case mysql:query(Conn, Q) of
-                {ok, [{error, Details}]} -> {error, Details};
+                {error, Details} -> {error, Details};
                 {ok,[<<"version">>,<<"filename">>],[]} -> [];
                 {ok,[<<"version">>,<<"filename">>], Data} ->
                     [{V, binary_to_list(F)} || [V, F] <- Data];
                 {ok,[<<"max(version)">>],[[null]]} -> -1;
                 {ok,[<<"max(version)">>],[[V]]} -> V;
                 {ok, _} -> ok;
-                Default -> io:format("otp_mysql_query_fun res=~p~n", [Default]), Default
+                ok -> ok
             end
     end.
 
