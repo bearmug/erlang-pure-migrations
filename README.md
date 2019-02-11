@@ -8,12 +8,34 @@
 Migrate your PostgreSQL or MySQL database from Erlang code with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
 purpose - consistently upgrade database schema, using Erlang stack and
-plain SQL. Feel free to run it with any PostgreSQL/MySQL Erlang driver (and see
+plain SQL. Feel free to run it with any PostgreSQL/MySQL Erlang library (and see
 several ready-to-use examples below). As an extra - do this in
 "no side-effects" mode.
 
 # Table of content
-
+- [Current limitations](#current-limitations)
+- [Quick start](#quick-start)
+  * [Compatibility table](#compatibility-table)
+  * [Live integrations](#live-integrations)
+    + [PostgreSQL and epgsql/epgsql](#postgresql-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
+      - [Onboarding comments](#onboarding-comments)
+      - [Code sample](#code-sample)
+    + [PostgreSQL and semiocast/pgsql](#postgresql-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
+      - [Onboarding comments](#onboarding-comments-1)
+      - [Code sample](#code-sample-1)
+    + [PostgreSQL and processone/p1_pgsql](#postgresql-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
+      - [Onboarding comments](#onboarding-comments-2)
+      - [Code sample](#code-sample-2)
+    + [MySQL and mysql-otp/mysql-otp](#mysql-and--mysql-otp-mysql-otp--https---githubcom-mysql-otp-mysql-otp-)
+      - [Onboarding comments](#onboarding-comments-3)
+      - [Code sample](#code-sample-3)
+- ["No-effects" approach and tools used to achieve it](#-no-effects--approach-and-tools-used-to-achieve-it)
+  * [Tool #1: effects externalization](#tool--1--effects-externalization)
+  * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
+- [Functional programming abstractions used](#functional-programming-abstractions-used)
+  * [Functions composition](#functions-composition)
+  * [Functor applications](#functor-applications)
+  * [Partial function applications](#partial-function-applications)
 
 # Current limitations
  * **up** transactional migration available only. No **downgrade**
