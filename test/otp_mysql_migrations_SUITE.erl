@@ -56,7 +56,7 @@ incremental_migration_test(Opts) ->
        {ok,[<<"max(version)">>],[[null]]},
        mysql:query(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {error, _, _},
+       {error, {1146, <<"42S02">>, <<"Table 'puremigration.fruit' doesn't exist">>}},
        mysql:query(Conn, "select count(*) from fruit")),
 
     %% assert step 1 migration
@@ -110,7 +110,7 @@ migration_gap_test(Opts) ->
        {ok,[<<"max(version)">>],[[0]]},
        mysql:query(Conn, "select max(version) from database_migrations_history")),
     ?assertMatch(
-       {ok, [{error, [{severity, 'ERROR'}|_]}]},
+       {error, {1054, <<"42S22">>, <<"Unknown column 'color' in 'where clause'">>}},
        mysql:query(Conn, "select count(*) from fruit where color = 'yellow'")).
 
 transactional_migration_test(Opts) ->
@@ -135,10 +135,8 @@ otp_mysql_query_fun(Conn) ->
             case mysql:query(Conn, Q) of
                 {ok, [{error, Details}]} -> {error, Details};
                 {ok,[<<"version">>,<<"filename">>],[]} -> [];
-                {ok, [{_, [
-                           {"version", text, _, _, _, _, _},
-                           {"filename", text, _, _, _, _, _}], Data}]} ->
-                    [{list_to_integer(V), F} || [V, F] <- Data];
+                {ok,[<<"version">>,<<"filename">>], Data} ->
+                    [{V, binary_to_list(F)} || [V, F] <- Data];
                 {ok,[<<"max(version)">>],[[null]]} -> -1;
                 {ok,[<<"max(version)">>],[[V]]} -> V;
                 {ok, _} -> ok;
