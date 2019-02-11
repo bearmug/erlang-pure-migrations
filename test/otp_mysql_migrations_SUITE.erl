@@ -10,7 +10,7 @@ all() -> [ migrate_one_script_test
          , incremental_migration_test
          , wrong_initial_version_test
          , migration_gap_test
-           %%         , transactional_migration_test
+         , transactional_migration_unavailable_for_mysql_test
          ].
 
 migrate_one_script_test(Opts) ->
@@ -82,7 +82,7 @@ wrong_initial_version_test(Opts) ->
                      otp_mysql_query_fun(Conn)
                     ),
     ?assertEqual(
-       {rollback, {badmatch, {error, unexpected_version, {expected, 0, supplied, 20}}}},
+       {rollback_unavailable, {badmatch, {error, unexpected_version, {expected, 0, supplied, 20}}}},
        PreparedCall()).
 
 migration_gap_test(Opts) ->
@@ -104,7 +104,7 @@ migration_gap_test(Opts) ->
 
     %% assert step 2 failed migration
     ?assertEqual(
-       {rollback, {badmatch, {error, unexpected_version, {expected, 1, supplied, 2}}}},
+       {rollback_unavailable, {badmatch, {error, unexpected_version, {expected, 1, supplied, 2}}}},
        MigrationStep2()),
     ?assertMatch(
        {ok,[<<"max(version)">>],[[0]]},
@@ -113,7 +113,7 @@ migration_gap_test(Opts) ->
        {error, {1054, <<"42S22">>, <<"Unknown column 'color' in 'where clause'">>}},
        mysql:query(Conn, "select count(*) from fruit where color = 'yellow'")).
 
-transactional_migration_test(Opts) ->
+transactional_migration_unavailable_for_mysql_test(Opts) ->
     Conn = ?config(conn, Opts),
     PreparedCall = pure_migrations:migrate(
                      filename:join([?config(data_dir, Opts), "04-last-migration-fail"]),
@@ -121,13 +121,15 @@ transactional_migration_test(Opts) ->
                      otp_mysql_query_fun(Conn)
                     ),
     ?assertMatch(
-       {rollback, {badmatch, {error, [{severity,'ERROR'}|_]}}},
+       {rollback_unavailable, {badmatch, {error, {_, _, _}}}},
        PreparedCall()),
+    %% no version values should exist into database
     ?assertMatch(
-       {ok,[<<"max(version)">>],[[null]]},
+       {ok,[<<"max(version)">>],[[0]]},
        mysql:query(Conn, "select max(version) from database_migrations_history")),
+    %% no fruit table should exist into database
     ?assertMatch(
-       {ok, [{error, [{severity,'ERROR'}|_]}]},
+       {ok,[<<"count(*)">>],[[1]]},
        mysql:query(Conn, "select count(*) from fruit")).
 
 otp_mysql_query_fun(Conn) ->
@@ -144,17 +146,12 @@ otp_mysql_query_fun(Conn) ->
             end
     end.
 
-otp_mysql_tx_fun(Conn) ->
+otp_mysql_tx_fun(_Conn) ->
     fun(F) ->
-            mysql:query(Conn, "BEGIN"),
             try F() of
-                Res ->
-                    mysql:query(Conn, "COMMIT"),
-                    Res
+                Res -> Res
             catch
-                _:Problem ->
-                    mysql:query(Conn, "ROLLBACK"),
-                    {rollback, Problem}
+                _:Problem -> {rollback_unavailable, Problem}
             end
     end.
 
