@@ -17,16 +17,16 @@ several ready-to-use examples below). As an extra - do this in
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
   * [Live integrations](#live-integrations)
-    + [PostgreSQL and epgsql](#postgresql-and--epgsql--https---githubcom-epgsql-epgsql-)
+    + [PostgreSQL and epgsql/epgsql](#postgresql-and--epgsql-epgsql--https---githubcom-epgsql-epgsql-)
       - [Onboarding comments](#onboarding-comments)
       - [Code sample](#code-sample)
-    + [PostgreSQL and pgsql](#postgresql-and--pgsql--https---githubcom-semiocast-pgsql-)
+    + [PostgreSQL and semiocast/pgsql](#postgresql-and--semiocast-pgsql--https---githubcom-semiocast-pgsql-)
       - [Onboarding comments](#onboarding-comments-1)
       - [Code sample](#code-sample-1)
-    + [PostgreSQL and p1_pgsql](#postgresql-and--p1-pgsql--https---githubcom-processone-p1-pgsql-)
+    + [PostgreSQL and processone/p1_pgsql](#postgresql-and--processone-p1-pgsql--https---githubcom-processone-p1-pgsql-)
       - [Onboarding comments](#onboarding-comments-2)
       - [Code sample](#code-sample-2)
-    + [MySQL and mysql-otp](#mysql-and--mysql-otp--https---githubcom-mysql-otp-mysql-otp-)
+    + [MySQL and mysql-otp/mysql-otp](#mysql-and--mysql-otp-mysql-otp--https---githubcom-mysql-otp-mysql-otp-)
       - [Onboarding comments](#onboarding-comments-3)
       - [Code sample](#code-sample-3)
 - ["No-effects" approach and tools used to achieve it](#-no-effects--approach-and-tools-used-to-achieve-it)
@@ -36,7 +36,7 @@ several ready-to-use examples below). As an extra - do this in
   * [Functions composition](#functions-composition)
   * [Functor applications](#functor-applications)
   * [Partial function applications](#partial-function-applications)
-  
+
 # Current limitations
  * **up** transactional migration available only. No **downgrade**
     calls available. Either whole **up** migration completes OK
@@ -75,7 +75,7 @@ All integrations validated against PostgreSQL 9.4/9.6
 | postgres  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
 ## Live integrations
-### PostgreSQL and [epgsql](https://github.com/epgsql/epgsql)
+### PostgreSQL and [epgsql/epgsql](https://github.com/epgsql/epgsql)
 #### Onboarding comments
 + most popular out of onboarded postgres integrations
 + transactions with proper stack trace available out of the box
@@ -118,7 +118,7 @@ Also see examples from live epgsql integration tests
 [here](test/epgsql_migrations_SUITE.erl)
 </details>
 
-### PostgreSQL and [pgsql](https://github.com/semiocast/pgsql)
+### PostgreSQL and [semiocast/pgsql](https://github.com/semiocast/pgsql)
 #### Onboarding comments
 + no need for extra parsing (strings, numbers, ...)
 - queries results structure has no metadata, like column types or names,
@@ -169,7 +169,7 @@ Also see examples from live semiocast/pgsql integration tests
 [here](test/spgsql_migrations_SUITE.erl)
 </details>
 
-### PostgreSQL and [p1_pgsql](https://github.com/processone/p1_pgsql)
+### PostgreSQL and [processone/p1_pgsql](https://github.com/processone/p1_pgsql)
 #### Onboarding comments
 + least popular lib,but at the same time - most succinct in terms of
   integration code (see below)
@@ -221,7 +221,7 @@ Also see examples from live epgsql integration tests
 [here](test/p1pgsql_migrations_SUITE.erl)
 </details>
 
-### MySQL and [mysql-otp](https://github.com/mysql-otp/mysql-otp)
+### MySQL and [mysql-otp/mysql-otp](https://github.com/mysql-otp/mysql-otp)
 #### Onboarding comments
 + almost no result-set parsing required
 - [implicit commit](https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html)
