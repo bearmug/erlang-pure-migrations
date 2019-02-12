@@ -1,5 +1,5 @@
 # Erlang ❤ pure database migrations
-> PostgreSQL | MySQL version control engine. Effects-free.
+> PostgreSQL | MySQL version control engine. Applies effects deliberatly.
 
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations)
 [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
@@ -29,9 +29,9 @@ several ready-to-use examples below). As an extra - do this in
     + [MySQL and mysql-otp/mysql-otp](#mysql-and-mysql-otpmysql-otp)
       - [Onboarding comments](#onboarding-comments-3)
       - [Code sample](#code-sample-3)
-- ["No-effects" approach and tools used to achieve it](#-no-effects--approach-and-tools-used-to-achieve-it)
-  * [Tool #1: effects externalization](#tool--1--effects-externalization)
-  * [Tool #2: make effects explicit](#tool--2--make-effects-explicit)
+- ["No-effects" approach and tools used to achieve it](#no-effects-approach-and-tools-used-to-achieve-it)
+  * [Tool #1: effects externalization](#tool-1-effects-externalization)
+  * [Tool #2: make effects explicit](#tool-2-make-effects-explicit)
 - [Functional programming abstractions used](#functional-programming-abstractions-used)
   * [Functions composition](#functions-composition)
   * [Functor applications](#functor-applications)
