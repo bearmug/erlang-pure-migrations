@@ -2,6 +2,8 @@ REBAR = ./rebar3
 DOCKER = docker
 CONTAINER_POSTGRES = postgres-migration-test-container
 CONTAINER_MYSQL = mysql-migration-test-container
+IMAGE_POSTGRES = postgres:9.6-alpine
+IMAGE_MYSQL = mysql:5.7
 
 all: clean code-checks test cover
 
@@ -39,7 +41,7 @@ postgres-up:
 	-e POSTGRES_PASSWORD=puremigration \
 	-e POSTGRES_USER=puremigration \
 	-e POSTGRES_DB=puremigration \
-	-d postgres:9.6-alpine
+	-d $(IMAGE_POSTGRES)
 
 postgres-down:
 	-$(DOCKER) rm -f $(CONTAINER_POSTGRES)
@@ -51,7 +53,7 @@ mysql-up:
 	-e MYSQL_USER=puremigration \
 	-e MYSQL_PASSWORD=puremigration \
 	-e MYSQL_DATABASE=puremigration \
-	-d mysql:5.7
+	-d $(IMAGE_MYSQL)
 
 mysql-wait:
 	while ! docker exec -it mysql-migration-test-container mysqladmin ping --silent; do \

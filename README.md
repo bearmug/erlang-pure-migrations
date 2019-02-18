@@ -76,6 +76,11 @@ All integrations validated against PostgreSQL 9.4/9.6
 
 ## FAQ
 ### Is it possible to have integration against custom version of PostgreSQL or MySQL?
+Sure! Please see simple steps below:
+* for **local build** just amend related [PostgreSQL]() 
+  or [MySQL]() image references inside project Makefile.
+* for your [CI]() build experiments please follow related 
+  Travis docs for [Postgres]() or [MySQL]() custom versions integration.
 ### Why tooling has no libraries integration out-of-the-box?
 ### Why migration scripts versioning model is so strict?
 ### What is the reason for not implemented migration rollbacks?
