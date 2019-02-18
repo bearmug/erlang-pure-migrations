@@ -74,6 +74,12 @@ All integrations validated against PostgreSQL 9.4/9.6
 | mysql     | [mysql-otp/mysql-otp:1.4.0](https://github.com/mysql-otp/mysql-otp/releases/tag/1.4.0) | [otp_mysql test](test/otp_mysql_migrations_SUITE.erl)
 | postgres  | any library with basic sql functional | [generic test](test/pure_migrations_SUITE.erl)
 
+## FAQ
+### Is it possible to have integration against custom version of PostgreSQL or MySQL?
+### Why tooling has no libraries integration out-of-the-box?
+### Why migration scripts versioning model is so strict?
+### What is the reason for not implemented migration rollbacks?
+
 ## Live integrations
 ### PostgreSQL and [epgsql/epgsql](https://github.com/epgsql/epgsql)
 #### Onboarding comments
