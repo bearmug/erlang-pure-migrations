@@ -77,8 +77,8 @@ All integrations validated against PostgreSQL 9.4/9.6
 ## FAQ
 ### Is it possible to have integration against custom version of PostgreSQL or MySQL?
 Sure! Please follow these simple steps below:
-* for **local build** just amend related [PostgreSQL](Makefle#L5) 
-  or [MySQL](Makefile#L4) images references inside project Makefile
+* for **local build** just amend related [PostgreSQL](./Makefle#L5) 
+  or [MySQL](./Makefile#L4) images references inside project Makefile
   and just run `make local`.
 * for your [CI](https://travis-ci.org/) build experiments please follow related 
   Travis docs for [Postgres](https://docs.travis-ci.com/user/database-setup/#postgresql) 
