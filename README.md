@@ -16,6 +16,10 @@ several ready-to-use examples below). As an extra - do this in
 - [Current limitations](#current-limitations)
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
+  * [FAQ](#faq)
+    + [Is it possible to have integration against custom version of PostgreSQL or MySQL?](#is-it-possible-to-have-integration-against-custom-version-of-postgresql-or-mysql)
+    + [Why there are no integrations in production code?](#why-there-are-no-integrations-in-production-code)
+    + [What is the idea behind strict migration scripts numbering?](#what-is-the-idea-behind-strict-migration-scripts-numbering)
   * [Live integrations](#live-integrations)
     + [PostgreSQL and epgsql/epgsql](#postgresql-and-epgsqlepgsql)
       - [Onboarding comments](#onboarding-comments)
@@ -77,7 +81,7 @@ All integrations validated against PostgreSQL 9.4/9.6
 ## FAQ
 ### Is it possible to have integration against custom version of PostgreSQL or MySQL?
 Sure! Please follow these simple steps below:
-* for **local build** just amend related [PostgreSQL](./Makefle#L5) 
+* for **local build** just amend related [PostgreSQL](./Makefile#L5) 
   or [MySQL](./Makefile#L4) images references inside project Makefile
   and just run `make local`.
 * for your [CI](https://travis-ci.org/) build experiments please follow related 
@@ -85,12 +89,11 @@ Sure! Please follow these simple steps below:
   or [MySQL](https://docs.travis-ci.com/user/database-setup/#mysql) 
   instructions.
 ### Why there are no integrations in production code?
-Two main reasons:
-1. Library production code has no third-party dependencies at all. 
-   Code becomes extremely lightweight and decoupled from particular
-   implementation bottlenecks. User absolutely free to choose any 
-   implementation (maybe one of [validated ones](#live-integrations)) 
-   and it's version as well.
+Library production code has no third-party dependencies at all. 
+Code becomes extremely lightweight and decoupled from particular
+library bottlenecks. User absolutely free to choose any 
+implementation (maybe one of [validated ones](#live-integrations)) 
+and it's version as well.
 ### What is the idea behind strict migration scripts numbering?
 The approach could be expressed as 2 rules:
 1. Each script name has a number prefix
