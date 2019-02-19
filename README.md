@@ -76,16 +76,29 @@ All integrations validated against PostgreSQL 9.4/9.6
 
 ## FAQ
 ### Is it possible to have integration against custom version of PostgreSQL or MySQL?
-Sure! Please see simple steps below:
+Sure! Please follow these simple steps below:
 * for **local build** just amend related [PostgreSQL](Makefle#5) 
-  or [MySQL](Makefile#6) images references inside project Makefile.
+  or [MySQL](Makefile#6) images references inside project Makefile
+  and just run `make local`.
 * for your [CI](https://travis-ci.org/) build experiments please follow related 
   Travis docs for [Postgres](https://docs.travis-ci.com/user/database-setup/#postgresql) 
   or [MySQL](https://docs.travis-ci.com/user/database-setup/#mysql) 
   instructions.
-### Why tooling has no libraries integration out-of-the-box?
-### Why migration scripts versioning model is so strict?
-### What is the reason for not implemented migration rollbacks?
+### Why there are no integrations in production code?
+Two main reasons:
+1. Library production code has no third-party dependencies at all. 
+   Code becomes extremely lightweight and decoupled from particular
+   implementation bottlenecks. User absolutely free to choose any 
+   implementation (maybe one of [validated ones](#live-integrations)) 
+   and it's version as well.
+### What is the idea behind strict migration scripts numbering?
+The approach could be expressed as 2 rules:
+1. Each script name has a number prefix
+2. Numbers should start from 0 and increment strictly by 1
+This model gives much more transparency for migrations sequence. And there
+is no chance to interlace migrations accidentally. Which is the case
+if multiple migrations are being developed and merged to default branch
+simultaneously.
 
 ## Live integrations
 ### PostgreSQL and [epgsql/epgsql](https://github.com/epgsql/epgsql)
