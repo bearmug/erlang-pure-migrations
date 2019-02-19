@@ -12,7 +12,7 @@ plain SQL. Feel free to run it with any PostgreSQL/MySQL Erlang library (and see
 several ready-to-use examples below). As an extra - do this in
 "no side-effects" mode.
 
-# Table of content
+# Table of contents
 - [Current limitations](#current-limitations)
 - [Quick start](#quick-start)
   * [Compatibility table](#compatibility-table)
