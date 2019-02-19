@@ -77,8 +77,8 @@ All integrations validated against PostgreSQL 9.4/9.6
 ## FAQ
 ### Is it possible to have integration against custom version of PostgreSQL or MySQL?
 Sure! Please follow these simple steps below:
-* for **local build** just amend related [PostgreSQL](Makefle#5) 
-  or [MySQL](Makefile#6) images references inside project Makefile
+* for **local build** just amend related [PostgreSQL](Makefle#L5) 
+  or [MySQL](Makefile#L4) images references inside project Makefile
   and just run `make local`.
 * for your [CI](https://travis-ci.org/) build experiments please follow related 
   Travis docs for [Postgres](https://docs.travis-ci.com/user/database-setup/#postgresql) 
@@ -95,7 +95,8 @@ Two main reasons:
 The approach could be expressed as 2 rules:
 1. Each script name has a number prefix
 2. Numbers should start from 0 and increment strictly by 1
-This model gives much more transparency for migrations sequence. And there
+
+This model gives much more clarity for migrations sequence. And there
 is no chance to interlace migrations accidentally. Which is the case
 if multiple migrations are being developed and merged to default branch
 simultaneously.
