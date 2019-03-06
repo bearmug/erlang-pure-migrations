@@ -4,6 +4,7 @@ CONTAINER_POSTGRES = postgres-migration-test-container
 CONTAINER_MYSQL = mysql-migration-test-container
 IMAGE_POSTGRES = postgres:9.6-alpine
 IMAGE_MYSQL = mysql:5.7
+USERNAME := $(shell whoami)
 
 all: clean code-checks test cover
 
@@ -36,15 +37,23 @@ format:
 	$(REBAR) fmt
 
 postgres-up:
-	$(DOCKER) run --name $(CONTAINER_POSTGRES) \
-	-p 5432:5432 \
-	-e POSTGRES_PASSWORD=puremigration \
-	-e POSTGRES_USER=puremigration \
-	-e POSTGRES_DB=puremigration \
-	-d $(IMAGE_POSTGRES)
+    ifeq ($(USERNAME), gitpod)
+		sudo /etc/init.d/postgresql start
+    else
+		$(DOCKER) run --name $(CONTAINER_POSTGRES) \
+		-p 5432:5432 \
+		-e POSTGRES_PASSWORD=puremigration \
+		-e POSTGRES_USER=puremigration \
+		-e POSTGRES_DB=puremigration \
+		-d $(IMAGE_POSTGRES)
+    endif
 
 postgres-down:
-	-$(DOCKER) rm -f $(CONTAINER_POSTGRES)
+    ifeq ($(USERNAME), gitpod)
+		sudo /etc/init.d/postgresql stop
+    else
+	    -$(DOCKER) rm -f $(CONTAINER_POSTGRES)
+    endif
 
 mysql-up:
 	$(DOCKER) run --name $(CONTAINER_MYSQL) \
