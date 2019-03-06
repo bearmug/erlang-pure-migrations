@@ -6,11 +6,16 @@ IMAGE_POSTGRES = postgres:9.6-alpine
 IMAGE_MYSQL = mysql:5.7
 USERNAME := $(shell whoami)
 
-all: clean code-checks test cover
+all: local
 
-travis: all coveralls
+travis: clean code-checks test cover coveralls
 
-local: format db-bounce all db-down
+local:
+    ifeq ($(USERNAME), gitpod)
+		make format clean code-checks test cover
+    else
+		make format db-bounce clean code-checks test cover db-down
+    endif
 
 clean:
 	$(REBAR) clean
@@ -56,22 +61,37 @@ postgres-down:
     endif
 
 mysql-up:
-	$(DOCKER) run --name $(CONTAINER_MYSQL) \
-	-p 3306:3306 \
-	-e MYSQL_ALLOW_EMPTY_PASSWORD=true \
-	-e MYSQL_USER=puremigration \
-	-e MYSQL_PASSWORD=puremigration \
-	-e MYSQL_DATABASE=puremigration \
-	-d $(IMAGE_MYSQL)
+    ifeq ($(USERNAME), gitpod)
+		sudo /etc/init.d/mysql start
+    else
+		$(DOCKER) run --name $(CONTAINER_MYSQL) \
+		-p 3306:3306 \
+		-e MYSQL_ALLOW_EMPTY_PASSWORD=true \
+		-e MYSQL_USER=puremigration \
+		-e MYSQL_PASSWORD=puremigration \
+		-e MYSQL_DATABASE=puremigration \
+		-d $(IMAGE_MYSQL)
+    endif
 
 mysql-wait:
-	while ! docker exec -it mysql-migration-test-container mysqladmin ping --silent; do \
-        echo "mysql image starting, wait for 1 second..."; \
-        sleep 1; \
-    done; done
+    ifeq ($(USERNAME), gitpod)
+		while ! mysqladmin ping --silent; do \
+			echo "mysql image starting, wait for 1 second..."; \
+			sleep 1; \
+		done; done
+    else
+		while ! docker exec -it mysql-migration-test-container mysqladmin ping --silent; do \
+			echo "mysql image starting, wait for 1 second..."; \
+			sleep 1; \
+		done; done
+    endif
 
 mysql-down:
-	-$(DOCKER) rm -f $(CONTAINER_MYSQL)
+    ifeq ($(USERNAME), gitpod)
+		sudo /etc/init.d/mysql start
+    else
+		-$(DOCKER) rm -f $(CONTAINER_MYSQL)
+    endif
 
 db-bounce: postgres-down mysql-down postgres-up mysql-up mysql-wait
 

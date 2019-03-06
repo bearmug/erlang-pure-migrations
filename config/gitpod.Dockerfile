@@ -24,4 +24,15 @@ RUN /etc/init.d/postgresql start && \
     psql --command "create user puremigration with encrypted password 'puremigration';" && \
     psql --command "grant all privileges on database puremigration to puremigration;"
 
+# ========================================================================
+# mysql setup
+# ========================================================================
+
+USER root
+RUN apt-get install -y mysql-server-5.7 && \
+    /etc/init.d/mysql start && \
+    mysql -e "CREATE DATABASE puremigration;" && \
+    mysql -e "CREATE USER 'puremigration'@'localhost' IDENTIFIED BY 'puremigration'" && \
+    mysql -e "GRANT ALL PRIVILEGES ON puremigration.* TO 'puremigration'@'localhost';"
+
 user gitpod

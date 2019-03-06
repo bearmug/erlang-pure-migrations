@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations)
 [![Coverage Status](https://coveralls.io/repos/github/bearmug/erlang-pure-migrations/badge.svg?branch=master)](https://coveralls.io/github/bearmug/erlang-pure-migrations?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/pure_migrations.svg)](https://hex.pm/packages/pure_migrations)
+[![Edit and run this code](https://img.shields.io/badge/edit%20and%20run-gitpod.io-orange.svg)](https://gitpod.io/#https://github.com/bearmug/erlang-pure-migrations)
 
 Migrate your PostgreSQL or MySQL database from Erlang code with no effort.
 This amazing toolkit has [one and only](https://en.wikipedia.org/wiki/Unix_philosophy)
