@@ -1,4 +1,5 @@
 # Erlang ❤ pure database migrations
+![](./logo.png)
 > PostgreSQL | MySQL version control engine. Applies effects deliberately.
 
 [![Build Status](https://travis-ci.org/bearmug/erlang-pure-migrations.svg?branch=master)](https://travis-ci.org/bearmug/erlang-pure-migrations)
