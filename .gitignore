@@ -13,3 +13,4 @@ rebar3.crashdump
 _build/
 
 .idea/
+*.iml
