@@ -40,6 +40,7 @@ several ready-to-use examples below). As an extra - do this in
   * [Functions composition](#functions-composition)
   * [Functor applications](#functor-applications)
   * [Partial function applications](#partial-function-applications)
+- [License](#license) 
 
 # Current limitations
  * **up** transactional migration available only. No **downgrade**
@@ -376,3 +377,6 @@ represented as list):
 ```erlang
 Partial = fun(V_F) -> do_migration(Path, FQuery, V_F) end,
 ```
+
+# License
+MIT, see [LICENSE](./LICENSE) for more details.
